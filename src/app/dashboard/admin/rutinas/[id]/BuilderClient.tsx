@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Plus, GripVertical, PlayCircle, Trash2, Edit } from "lucide-react";
 import { addDiaToRutina, addEjercicioToDia, reorderEjercicios } from "@/app/actions/rutinas";
@@ -11,8 +11,16 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
   const [dias, setDias] = useState(rutina.dias || []);
   const [isAddingDia, setIsAddingDia] = useState(false);
   const [newDiaName, setNewDiaName] = useState("");
+  const [localVideos, setLocalVideos] = useState<string[]>([]);
   
   const [isAddingEj, setIsAddingEj] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch('/api/videos')
+      .then(res => res.json())
+      .then(data => setLocalVideos(data.videos || []))
+      .catch(console.error);
+  }, []);
 
   const handleAddDia = async () => {
     if (!newDiaName.trim()) return;
@@ -133,12 +141,16 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
             {isAddingEj === dia.id && (
               <div className="p-4 border-t border-zinc-800 bg-zinc-950/50">
                 <form action={async (formData) => {
+                  const video_url_ext = formData.get("video_url_ext") as string;
+                  const video_local = formData.get("video_local") as string;
+                  const finalVideoUrl = video_url_ext || video_local || null;
+
                   await addEjercicioToDia(dia.id, {
                     nombre: formData.get("nombre") as string,
                     series: parseInt(formData.get("series") as string),
                     rango_reps: formData.get("rango_reps") as string,
                     rir: formData.get("rir") as string,
-                    video_url: formData.get("video_url") as string,
+                    video_url: finalVideoUrl,
                   });
                   setIsAddingEj(null);
                   router.refresh(); // Manual refresh since it's client component
@@ -146,10 +158,16 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
                   <input required name="nombre" placeholder="Nombre del Ejercicio (ej: Press Banca)" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
                   
                   <div className="flex gap-2">
-                    <input required name="series" type="number" placeholder="Series" className="w-1/4 bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-                    <input required name="rango_reps" placeholder="Reps (ej: 10-12)" className="w-1/4 bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-                    <input name="rir" placeholder="RIR (opcional)" className="w-1/4 bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-                    <input name="video_url" placeholder="Video URL (opcional)" className="w-1/4 bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+                    <input required name="series" type="number" placeholder="Series" className="w-[15%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+                    <input required name="rango_reps" placeholder="Reps (ej: 10-12)" className="w-[20%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+                    <input name="rir" placeholder="RIR (opcional)" className="w-[15%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+                    <select name="video_local" className="w-[25%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm focus:outline-none">
+                      <option value="">Video Carpeta</option>
+                      {localVideos.map(v => (
+                        <option key={v} value={`/videos/${v}`}>{v}</option>
+                      ))}
+                    </select>
+                    <input name="video_url_ext" placeholder="O Link Externo (YouTube)" className="w-[25%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
                   </div>
 
                   <div className="flex justify-end gap-2">

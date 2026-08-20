@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { Dumbbell, Info, PlayCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import VideoModalButton from "./VideoModalButton";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -78,9 +79,7 @@ export default async function DashboardPage() {
                         <h4 className="font-bold text-white text-lg flex items-center gap-2">
                           {ej.nombre}
                           {ej.video_url && (
-                            <a href={ej.video_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 transition-colors" title="Ver video técnica">
-                              <PlayCircle className="w-5 h-5" />
-                            </a>
+                            <VideoModalButton videoUrl={ej.video_url} titulo={ej.nombre} />
                           )}
                         </h4>
                         
