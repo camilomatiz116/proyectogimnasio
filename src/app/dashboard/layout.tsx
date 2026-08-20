@@ -63,6 +63,10 @@ export default async function DashboardLayout({
                 <Calendar className="w-5 h-5 text-zinc-400" />
                 <span>Gestionar Rutinas</span>
               </Link>
+              <Link href="/dashboard/admin/registro" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-300 hover:text-white">
+                <User className="w-5 h-5 text-yellow-500" />
+                <span className="font-bold text-yellow-500">Crear Usuario</span>
+              </Link>
               <Link href="/dashboard/admin/usuarios" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-zinc-800 transition-colors text-zinc-300 hover:text-white">
                 <User className="w-5 h-5 text-zinc-400" />
                 <span>Usuarios y Pagos</span>
