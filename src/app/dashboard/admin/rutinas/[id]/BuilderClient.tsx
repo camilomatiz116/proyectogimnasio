@@ -83,7 +83,7 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
       });
       
       // Update state instantly
-      setDias(prev => prev.map((d: any) => {
+      setDias((prev: any[]) => prev.map((d: any) => {
         if (d.id === diaId) {
           return { ...d, ejercicios: [...d.ejercicios, nuevoEj] };
         }
@@ -91,7 +91,7 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
       }));
       
       // Clear selection for this day
-      setSelectedVideos(prev => ({ ...prev, [diaId]: "" }));
+      setSelectedVideos((prev: Record<string, string>) => ({ ...prev, [diaId]: "" }));
     } catch (error) {
       console.error(error);
       alert("Error al agregar ejercicio");
@@ -151,7 +151,7 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
               <div className="flex flex-1 w-full max-w-md gap-2">
                 <select 
                   value={selectedVideos[dia.id] || ""} 
-                  onChange={(e) => setSelectedVideos(prev => ({ ...prev, [dia.id]: e.target.value }))}
+                  onChange={(e) => setSelectedVideos((prev: Record<string, string>) => ({ ...prev, [dia.id]: e.target.value }))}
                   className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-white text-sm focus:outline-none focus:border-yellow-500"
                 >
                   <option value="">Seleccionar Ejercicio...</option>
