@@ -229,7 +229,7 @@ function NewEjercicioForm({ diaId, localVideos, onCancel }: { diaId: string, loc
     <div className="p-4 border-t border-zinc-800 bg-zinc-950/50">
       <form action={async (formData) => {
         const video_url_ext = formData.get("video_url_ext") as string;
-        const finalVideoUrl = video_url_ext || videoLocal || null;
+        const finalVideoUrl = video_url_ext || videoLocal || undefined;
 
         await addEjercicioToDia(diaId, {
           nombre: formData.get("nombre") as string,
