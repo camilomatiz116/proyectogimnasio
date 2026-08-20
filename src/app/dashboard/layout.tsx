@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { LogOut, User, Calendar, QrCode } from "lucide-react";
 import Link from "next/link";
 import LogoutButton from "./LogoutButton";
+import Image from "next/image";
 
 export default async function DashboardLayout({
   children,
@@ -23,10 +24,15 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-zinc-950 text-white flex flex-col md:flex-row">
       {/* Sidebar Navigation */}
       <aside className="w-full md:w-64 bg-zinc-900 border-r border-zinc-800 p-4 flex flex-col">
-        <div className="mb-8 p-4 bg-zinc-950 rounded-xl border border-zinc-800">
-          <p className="text-xs text-zinc-500 uppercase tracking-wider font-bold mb-1">Bienvenido</p>
-          <p className="font-semibold text-yellow-500 truncate">{user.name}</p>
-          <p className="text-xs text-zinc-400 capitalize">{user.rol}</p>
+        <div className="mb-8 p-4 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col items-center">
+          <div className="relative w-40 h-16 mb-4">
+            <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain object-center" />
+          </div>
+          <div className="w-full text-left">
+            <p className="text-xs text-zinc-500 uppercase tracking-wider font-bold mb-1">Bienvenido</p>
+            <p className="font-semibold text-yellow-500 truncate">{user.name}</p>
+            <p className="text-xs text-zinc-400 capitalize">{user.rol}</p>
+          </div>
         </div>
 
         <nav className="flex-1 space-y-2">

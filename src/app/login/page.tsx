@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Dumbbell } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -37,10 +38,9 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-zinc-950 p-4">
       <div className="w-full max-w-md bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-800 p-8">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center mb-4">
-            <Dumbbell className="text-zinc-950 w-8 h-8" />
+          <div className="relative w-64 h-24 mb-4">
+            <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain object-center" />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">JPES GYM</h1>
           <p className="text-zinc-400 mt-2">Inicia sesión en tu cuenta</p>
         </div>
 

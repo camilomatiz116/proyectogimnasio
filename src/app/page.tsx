@@ -49,7 +49,7 @@ export default function Home() {
             
             {/* Logo */}
             <div className="flex items-center cursor-pointer" onClick={() => scrollToSection('inicio')}>
-              <div className="relative w-40 h-16">
+              <div className="relative w-48 h-20 md:w-56 md:h-24">
                 <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain object-left" />
               </div>
             </div>
