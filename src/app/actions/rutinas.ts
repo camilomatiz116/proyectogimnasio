@@ -122,3 +122,12 @@ export async function assignRutina(usuarioId: string, rutinaId: string | null) {
   revalidatePath("/dashboard/admin/rutinas");
   return { success: true };
 }
+
+export async function deleteRutina(rutinaId: string) {
+  await checkAdmin();
+  await prisma.rutina.delete({
+    where: { id: rutinaId }
+  });
+  revalidatePath("/dashboard/admin/rutinas");
+  return { success: true };
+}

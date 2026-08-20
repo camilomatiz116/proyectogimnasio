@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Plus, Users, ArrowRight } from "lucide-react";
 import CreateRutinaModal from "./CreateRutinaModal";
 import AssignRutinaModal from "./AssignRutinaModal";
+import DeleteRutinaButton from "./DeleteRutinaButton";
 
 export default async function AdminRutinasPage() {
   const rutinas = await getRutinas();
@@ -37,9 +38,11 @@ export default async function AdminRutinasPage() {
               href={`/dashboard/admin/rutinas/${rutina.id}`}
               className="group bg-zinc-900 border border-zinc-800 rounded-2xl p-5 hover:border-yellow-500 transition-colors block relative overflow-hidden"
             >
+              <DeleteRutinaButton rutinaId={rutina.id} rutinaNombre={rutina.nombre} />
+              
               <div className="flex justify-between items-start mb-4">
-                <h3 className="font-bold text-lg text-white truncate pr-4">{rutina.nombre}</h3>
-                <span className="text-xs font-semibold px-2 py-1 bg-zinc-800 text-zinc-300 rounded uppercase">
+                <h3 className="font-bold text-lg text-white truncate pr-8">{rutina.nombre}</h3>
+                <span className="text-xs font-semibold px-2 py-1 bg-zinc-800 text-zinc-300 rounded uppercase mt-1">
                   v{rutina.version}
                 </span>
               </div>
