@@ -4,8 +4,9 @@ import Link from "next/link";
 import { ArrowLeft, CalendarPlus } from "lucide-react";
 import BuilderClient from "./BuilderClient";
 
-export default async function BuilderPage({ params }: { params: { id: string } }) {
-  const rutina = await getRutinaById(params.id);
+export default async function BuilderPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const rutina = await getRutinaById(id);
   
   if (!rutina) {
     notFound();
