@@ -2,15 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { Plus, GripVertical, PlayCircle, Trash2, Edit } from "lucide-react";
-import { addDiaToRutina, addEjercicioToDia, reorderEjercicios, updateRutinaName } from "@/app/actions/rutinas";
+import { GripVertical, PlayCircle, Trash2, Edit, Plus } from "lucide-react";
+import { addEjercicioToDia, reorderEjercicios, updateRutinaName } from "@/app/actions/rutinas";
 import { useRouter } from "next/navigation";
 
 export default function BuilderClient({ rutina }: { rutina: any }) {
   const router = useRouter();
   const [dias, setDias] = useState(rutina.dias || []);
-  const [isAddingDia, setIsAddingDia] = useState(false);
-  const [newDiaName, setNewDiaName] = useState("");
   const [rutinaNombre, setRutinaNombre] = useState(rutina.nombre);
   const [isSavingName, setIsSavingName] = useState(false);
   const [localVideos, setLocalVideos] = useState<string[]>([]);

@@ -142,3 +142,54 @@ export async function updateRutinaName(rutinaId: string, nombre: string) {
   revalidatePath("/dashboard/admin/rutinas");
   return { success: true };
 }
+
+export async function getOrCreateUserRoutine(userId: string) {
+  await checkAdmin();
+  
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { name: true, rutinaId: true }
+  });
+  
+  if (!user) throw new Error("Usuario no encontrado");
+  
+  if (user.rutinaId) {
+    // Si la rutina existe, verificar si tiene días, si no, crearlos
+    const daysCount = await prisma.diaRutina.count({ where: { rutinaId: user.rutinaId } });
+    if (daysCount === 0) {
+      const diasDefault = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+      for (let i = 0; i < diasDefault.length; i++) {
+        await prisma.diaRutina.create({
+          data: { rutinaId: user.rutinaId, nombre_dia: diasDefault[i], orden: i }
+        });
+      }
+    }
+    return user.rutinaId;
+  }
+  
+  // Create new routine
+  const rutina = await prisma.rutina.create({
+    data: {
+      nombre: `Rutina de ${user.name?.split(" ")[0] || "Alumno"}`,
+      genero: "U",
+      nivel: "general",
+    }
+  });
+  
+  // Create default days
+  const diasDefault = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+  for (let i = 0; i < diasDefault.length; i++) {
+    await prisma.diaRutina.create({
+      data: { rutinaId: rutina.id, nombre_dia: diasDefault[i], orden: i }
+    });
+  }
+  
+  // Assign to user
+  await prisma.user.update({
+    where: { id: userId },
+    data: { rutinaId: rutina.id }
+  });
+  
+  revalidatePath("/dashboard/admin/rutinas");
+  return rutina.id;
+}
