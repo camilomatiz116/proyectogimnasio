@@ -87,18 +87,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 border-t border-zinc-800 pt-6">
-          <button
-            type="button"
-            onClick={() => {
-              setEmail('admin@jpesgym.com');
-              setPassword('admin123');
-            }}
-            className="w-full bg-zinc-800 hover:bg-zinc-700 text-white font-medium py-2 rounded-lg transition-colors text-sm"
-          >
-            ⚡ Rellenar credenciales de Administrador
-          </button>
-        </div>
+
 
         <p className="text-zinc-400 text-center mt-6 text-sm">
           ¿No tienes una cuenta?{" "}

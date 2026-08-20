@@ -1,6 +1,7 @@
 import { getUsuariosFinanzas } from "@/app/actions/pagos";
 import { CheckCircle2, AlertCircle, Banknote, QrCode } from "lucide-react";
 import QrCobroModal from "./QrCobroModal";
+import NuevoAlumnoModal from "./NuevoAlumnoModal";
 
 export default async function UsuariosFinanzasPage() {
   const usuarios = await getUsuariosFinanzas();
@@ -8,9 +9,12 @@ export default async function UsuariosFinanzasPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white tracking-tight">Usuarios y Finanzas</h1>
-        <p className="text-zinc-400 mt-1">Control de pagos, membresías y cobros en efectivo.</p>
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-white tracking-tight">Usuarios y Finanzas</h1>
+          <p className="text-zinc-400 mt-1">Control de pagos, membresías y cobros en efectivo.</p>
+        </div>
+        <NuevoAlumnoModal />
       </div>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">

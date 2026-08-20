@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Dumbbell, User, ShieldCheck, Activity, Heart, Clock, MapPin, Menu, X, CheckCircle2 } from "lucide-react";
-import { signIn } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [loading, setLoading] = useState<string | null>(null);
@@ -19,16 +19,11 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleEntry = async (role: "admin" | "alumno") => {
+  const router = useRouter();
+
+  const handleEntry = (role: "admin" | "alumno") => {
     setLoading(role);
-    const email = role === "admin" ? "admin@jpesgym.com" : "alumno@jpesgym.com"; 
-    const password = role === "admin" ? "admin123" : "alumno123";
-    
-    await signIn("credentials", {
-      email,
-      password,
-      callbackUrl: "/dashboard",
-    });
+    router.push("/login");
   };
 
   const scrollToSection = (id: string) => {
