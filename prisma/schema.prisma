@@ -1,0 +1,167 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth Models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  
+  // Custom Gym fields
+  telefono      String?
+  rol           String    @default("alumno") // "alumno" | "admin"
+  grupo_rh      String?
+  edad          Int?
+  altura        Float?
+  nivel         String?   // "novato" | "intermedio" | "avanzado" | "modificado"
+  genero        String?
+  fecha_registro DateTime @default(now())
+  activo        Boolean   @default(true)
+  fecha_vencimiento_membresia DateTime?
+
+  accounts      Account[]
+  sessions      Session[]
+  
+  // Relaciones
+  medidas       MedidaCorporal[]
+  checkIns      CheckIn[]
+  pagos         Pago[]
+  notificaciones Notificacion[]
+  rutina        Rutina?   @relation(fields: [rutinaId], references: [id])
+  rutinaId      String?
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Gym Models
+
+model MedidaCorporal {
+  id         String   @id @default(cuid())
+  usuarioId  String
+  fecha      DateTime @default(now())
+  peso_kg    Float?
+  medidas    String?  // JSON stringified for cintura, cadera, brazo, etc.
+  
+  usuario    User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+model Rutina {
+  id                 String   @id @default(cuid())
+  nombre             String
+  genero             String   // "M" | "F" | "U"
+  nivel              String   // "novato" | "intermedio" | "avanzado"
+  version            Int      @default(1)
+  fecha_actualizacion DateTime @default(now()) @updatedAt
+  
+  dias               DiaRutina[]
+  usuarios           User[]
+}
+
+model DiaRutina {
+  id          String   @id @default(cuid())
+  rutinaId    String
+  nombre_dia  String   // ej. "Lunes - Torso completo"
+  orden       Int
+  
+  rutina      Rutina   @relation(fields: [rutinaId], references: [id], onDelete: Cascade)
+  ejercicios  Ejercicio[]
+}
+
+model Ejercicio {
+  id            String   @id @default(cuid())
+  dia_rutinaId  String
+  orden         Int
+  nombre        String
+  video_url     String?
+  series        Int
+  rango_reps    String   // ej. "10-12"
+  rir           String?  // Repetitions in Reserve, ej. "2"
+  tempo         String?  // ej. "3-0-X-0"
+  
+  dia_rutina    DiaRutina @relation(fields: [dia_rutinaId], references: [id], onDelete: Cascade)
+}
+
+model CheckIn {
+  id          String   @id @default(cuid())
+  usuarioId   String
+  fecha_hora  DateTime @default(now())
+  metodo      String   @default("qr")
+  
+  usuario     User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+model Pago {
+  id               String   @id @default(cuid())
+  usuarioId        String
+  periodo          String   // ej. "2026-08"
+  monto            Float
+  estado           String   @default("pendiente") // "pagado" | "pendiente" | "vencido"
+  fecha_pago       DateTime?
+  referencia_wompi String?
+  
+  usuario          User     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+model Notificacion {
+  id          String   @id @default(cuid())
+  usuarioId   String?  // null = todos
+  tipo        String   // "cambio_rutina" | "pago_proximo" | "promocion"
+  mensaje     String
+  fecha       DateTime @default(now())
+  leida       Boolean  @default(false)
+  
+  usuario     User?    @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+}
+
+model HorarioGimnasio {
+  id          String   @id @default(cuid())
+  dia_semana  Int      // 0 = Domingo, 1 = Lunes, etc.
+  hora_inicio String   // "06:00"
+  hora_fin    String   // "22:00"
+  tipo        String   // "libre" | "con_instructor"
+}
