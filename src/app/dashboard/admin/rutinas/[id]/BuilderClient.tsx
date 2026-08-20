@@ -139,43 +139,7 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
 
             {/* Quick Add Form */}
             {isAddingEj === dia.id && (
-              <div className="p-4 border-t border-zinc-800 bg-zinc-950/50">
-                <form action={async (formData) => {
-                  const video_url_ext = formData.get("video_url_ext") as string;
-                  const video_local = formData.get("video_local") as string;
-                  const finalVideoUrl = video_url_ext || video_local || null;
-
-                  await addEjercicioToDia(dia.id, {
-                    nombre: formData.get("nombre") as string,
-                    series: parseInt(formData.get("series") as string),
-                    rango_reps: formData.get("rango_reps") as string,
-                    rir: formData.get("rir") as string,
-                    video_url: finalVideoUrl,
-                  });
-                  setIsAddingEj(null);
-                  router.refresh(); // Manual refresh since it's client component
-                }} className="space-y-3">
-                  <input required name="nombre" placeholder="Nombre del Ejercicio (ej: Press Banca)" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-                  
-                  <div className="flex gap-2">
-                    <input required name="series" type="number" placeholder="Series" className="w-[15%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-                    <input required name="rango_reps" placeholder="Reps (ej: 10-12)" className="w-[20%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-                    <input name="rir" placeholder="RIR (opcional)" className="w-[15%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-                    <select name="video_local" className="w-[25%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm focus:outline-none">
-                      <option value="">Video Carpeta</option>
-                      {localVideos.map(v => (
-                        <option key={v} value={`/videos/${v}`}>{v}</option>
-                      ))}
-                    </select>
-                    <input name="video_url_ext" placeholder="O Link Externo (YouTube)" className="w-[25%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-                  </div>
-
-                  <div className="flex justify-end gap-2">
-                    <button type="button" onClick={() => setIsAddingEj(null)} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-white">Cancelar</button>
-                    <button type="submit" className="bg-yellow-500 text-zinc-950 px-3 py-1.5 rounded-lg text-xs font-bold">Guardar</button>
-                  </div>
-                </form>
-              </div>
+              <NewEjercicioForm diaId={dia.id} localVideos={localVideos} onCancel={() => setIsAddingEj(null)} />
             )}
           </div>
         ))}
@@ -206,6 +170,67 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function NewEjercicioForm({ diaId, localVideos, onCancel }: { diaId: string, localVideos: string[], onCancel: () => void }) {
+  const router = useRouter();
+  const [nombre, setNombre] = useState("");
+  const [videoLocal, setVideoLocal] = useState("");
+
+  const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setNombre(val);
+    
+    if (val.length > 2) {
+      const match = localVideos.find(v => {
+        const vName = v.toLowerCase().replace(".mp4", "").replace(".webm", "");
+        const input = val.toLowerCase();
+        return vName.includes(input) || input.includes(vName);
+      });
+      if (match) {
+        setVideoLocal(`/videos/${match}`);
+      }
+    }
+  };
+
+  return (
+    <div className="p-4 border-t border-zinc-800 bg-zinc-950/50">
+      <form action={async (formData) => {
+        const video_url_ext = formData.get("video_url_ext") as string;
+        const finalVideoUrl = video_url_ext || videoLocal || null;
+
+        await addEjercicioToDia(diaId, {
+          nombre: formData.get("nombre") as string,
+          series: parseInt(formData.get("series") as string),
+          rango_reps: formData.get("rango_reps") as string,
+          rir: formData.get("rir") as string,
+          video_url: finalVideoUrl,
+        });
+        onCancel();
+        router.refresh();
+      }} className="space-y-3">
+        <input required name="nombre" value={nombre} onChange={handleNombreChange} placeholder="Nombre del Ejercicio (ej: Press Banca)" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+        
+        <div className="flex gap-2">
+          <input required name="series" type="number" placeholder="Series" className="w-[15%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+          <input required name="rango_reps" placeholder="Reps (ej: 10-12)" className="w-[20%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+          <input name="rir" placeholder="RIR (opcional)" className="w-[15%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+          <select name="video_local" value={videoLocal} onChange={e => setVideoLocal(e.target.value)} className="w-[25%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm focus:outline-none">
+            <option value="">Video Carpeta</option>
+            {localVideos.map(v => (
+              <option key={v} value={`/videos/${v}`}>{v}</option>
+            ))}
+          </select>
+          <input name="video_url_ext" placeholder="O Link Externo (YouTube)" className="w-[25%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <button type="button" onClick={onCancel} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-white">Cancelar</button>
+          <button type="submit" className="bg-yellow-500 text-zinc-950 px-3 py-1.5 rounded-lg text-xs font-bold">Guardar</button>
+        </div>
+      </form>
     </div>
   );
 }
