@@ -193,3 +193,12 @@ export async function getOrCreateUserRoutine(userId: string) {
   revalidatePath("/dashboard/admin/rutinas");
   return rutina.id;
 }
+
+export async function deleteEjercicio(ejercicioId: string) {
+  await checkAdmin();
+  await prisma.ejercicio.delete({
+    where: { id: ejercicioId }
+  });
+  // No revalidar porque el UI se actualiza optimistamente
+  return { success: true };
+}

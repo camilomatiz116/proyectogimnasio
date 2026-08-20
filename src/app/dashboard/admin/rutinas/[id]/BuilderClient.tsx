@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { GripVertical, PlayCircle, Trash2, Edit, Plus, AlertCircle } from "lucide-react";
-import { addEjercicioToDia, reorderEjercicios, updateRutinaName, deleteRutina } from "@/app/actions/rutinas";
+import { addEjercicioToDia, reorderEjercicios, updateRutinaName, deleteRutina, deleteEjercicio } from "@/app/actions/rutinas";
 import { useRouter } from "next/navigation";
 
 export default function BuilderClient({ rutina }: { rutina: any }) {
@@ -113,6 +113,25 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
     }
   };
 
+  const handleDeleteEjercicio = async (diaId: string, ejercicioId: string) => {
+    if (!confirm("¿Eliminar este ejercicio?")) return;
+    
+    // Update state instantly
+    setDias((prev: any[]) => prev.map((d: any) => {
+      if (d.id === diaId) {
+        return { ...d, ejercicios: d.ejercicios.filter((e: any) => e.id !== ejercicioId) };
+      }
+      return d;
+    }));
+
+    try {
+      await deleteEjercicio(ejercicioId);
+    } catch (e) {
+      alert("Error al eliminar el ejercicio");
+      router.refresh(); // revert on error
+    }
+  };
+
   return (
     <div className="space-y-6 pb-24">
       {/* Título editable */}
@@ -205,7 +224,11 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
                             <button className="p-2 text-zinc-500 hover:text-white transition-colors rounded-lg hover:bg-zinc-800" title="Editar">
                               <Edit className="w-4 h-4" />
                             </button>
-                            <button className="p-2 text-red-900 hover:text-red-500 transition-colors rounded-lg hover:bg-red-950" title="Eliminar">
+                            <button 
+                              onClick={() => handleDeleteEjercicio(dia.id, ej.id)}
+                              className="p-2 text-red-900 hover:text-red-500 transition-colors rounded-lg hover:bg-red-950" 
+                              title="Eliminar"
+                            >
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
