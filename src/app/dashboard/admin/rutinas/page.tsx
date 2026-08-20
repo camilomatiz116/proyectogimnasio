@@ -1,7 +1,7 @@
 import { getRutinas, getAllUsers } from "@/app/actions/rutinas";
 import Link from "next/link";
 import { Plus, Users, ArrowRight } from "lucide-react";
-import CreateRutinaModal from "./CreateRutinaModal";
+import CreateRutinaButton from "./CreateRutinaButton";
 import AssignRutinaModal from "./AssignRutinaModal";
 import DeleteRutinaButton from "./DeleteRutinaButton";
 
@@ -18,7 +18,7 @@ export default async function AdminRutinasPage() {
         </div>
         <div className="flex space-x-3">
           <AssignRutinaModal rutinas={rutinas} usuarios={usuarios} />
-          <CreateRutinaModal />
+          <CreateRutinaButton />
         </div>
       </div>
 
@@ -47,18 +47,7 @@ export default async function AdminRutinasPage() {
                 </span>
               </div>
               
-              <div className="flex items-center space-x-4 mb-6">
-                <div className="text-sm">
-                  <p className="text-zinc-500 text-xs uppercase font-bold tracking-wider mb-1">Nivel</p>
-                  <p className="text-zinc-300 capitalize">{rutina.nivel}</p>
-                </div>
-                <div className="text-sm">
-                  <p className="text-zinc-500 text-xs uppercase font-bold tracking-wider mb-1">Género</p>
-                  <p className="text-zinc-300 capitalize">{rutina.genero === "M" ? "Hombres" : rutina.genero === "F" ? "Mujeres" : "Unisex"}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-zinc-800">
+              <div className="flex items-center justify-between mt-6 pt-4 border-t border-zinc-800">
                 <div className="flex items-center space-x-2 text-zinc-400 text-sm">
                   <Users className="w-4 h-4" />
                   <span>{rutina._count.usuarios} asignados</span>

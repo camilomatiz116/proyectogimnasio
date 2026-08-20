@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
 import { Plus, GripVertical, PlayCircle, Trash2, Edit } from "lucide-react";
-import { addDiaToRutina, addEjercicioToDia, reorderEjercicios } from "@/app/actions/rutinas";
+import { addDiaToRutina, addEjercicioToDia, reorderEjercicios, updateRutinaName } from "@/app/actions/rutinas";
 import { useRouter } from "next/navigation";
 
 export default function BuilderClient({ rutina }: { rutina: any }) {
@@ -11,6 +11,8 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
   const [dias, setDias] = useState(rutina.dias || []);
   const [isAddingDia, setIsAddingDia] = useState(false);
   const [newDiaName, setNewDiaName] = useState("");
+  const [rutinaNombre, setRutinaNombre] = useState(rutina.nombre);
+  const [isSavingName, setIsSavingName] = useState(false);
   const [localVideos, setLocalVideos] = useState<string[]>([]);
   
   const [isAddingEj, setIsAddingEj] = useState<string | null>(null);
@@ -67,8 +69,36 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
     }
   };
 
+  const handleUpdateName = async () => {
+    if (rutinaNombre.trim() === "" || rutinaNombre === rutina.nombre) return;
+    setIsSavingName(true);
+    try {
+      await updateRutinaName(rutina.id, rutinaNombre);
+    } catch (e) {
+      alert("Error al actualizar el nombre");
+    } finally {
+      setIsSavingName(false);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-24">
+      {/* Título editable */}
+      <div className="mb-8">
+        <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2 block">Nombre de la Rutina</label>
+        <div className="flex gap-3">
+          <input 
+            value={rutinaNombre}
+            onChange={(e) => setRutinaNombre(e.target.value)}
+            onBlur={handleUpdateName}
+            onKeyDown={(e) => { if(e.key === 'Enter') { e.currentTarget.blur(); } }}
+            className="w-full bg-transparent border-b-2 border-zinc-800 focus:border-yellow-500 text-3xl sm:text-4xl font-black text-white uppercase tracking-tight pb-2 focus:outline-none transition-colors"
+            placeholder="Escribe el nombre de la rutina..."
+          />
+          {isSavingName && <span className="text-zinc-500 text-sm animate-pulse flex-shrink-0 self-end mb-3">Guardando...</span>}
+        </div>
+      </div>
+
       <DragDropContext onDragEnd={handleDragEnd}>
         {dias.map((dia: any) => (
           <div key={dia.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">

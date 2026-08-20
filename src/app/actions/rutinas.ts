@@ -131,3 +131,14 @@ export async function deleteRutina(rutinaId: string) {
   revalidatePath("/dashboard/admin/rutinas");
   return { success: true };
 }
+
+export async function updateRutinaName(rutinaId: string, nombre: string) {
+  await checkAdmin();
+  await prisma.rutina.update({
+    where: { id: rutinaId },
+    data: { nombre }
+  });
+  revalidatePath(`/dashboard/admin/rutinas/${rutinaId}`);
+  revalidatePath("/dashboard/admin/rutinas");
+  return { success: true };
+}
