@@ -13,7 +13,9 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
   const [isSavingName, setIsSavingName] = useState(false);
   const [localVideos, setLocalVideos] = useState<string[]>([]);
   
-  const [isAddingEj, setIsAddingEj] = useState<string | null>(null);
+  // Track selected video per day
+  const [selectedVideos, setSelectedVideos] = useState<Record<string, string>>({});
+  const [isAddingToDia, setIsAddingToDia] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/videos')
@@ -22,25 +24,12 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
       .catch(console.error);
   }, []);
 
-  const handleAddDia = async () => {
-    if (!newDiaName.trim()) return;
-    try {
-      await addDiaToRutina(rutina.id, newDiaName);
-      setNewDiaName("");
-      setIsAddingDia(false);
-      // Let Server Action revalidate handle data refresh, but we might need to refresh manually for client component if it doesn't trigger
-    } catch (e) {
-      alert("Error al agregar día");
-    }
-  };
-
   const handleDragEnd = async (result: DropResult) => {
     if (!result.destination) return;
     
     const sourceDiaId = result.source.droppableId;
     const destDiaId = result.destination.droppableId;
     
-    // Solo soportamos reordenamiento dentro del mismo día por ahora para simplicidad
     if (sourceDiaId !== destDiaId) {
       alert("No se puede mover entre días todavía.");
       return;
@@ -52,12 +41,11 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
     const newDias = [...dias];
     const ejercicios = [...newDias[diaIndex].ejercicios];
     
-    // Mover
     const [movedItem] = ejercicios.splice(result.source.index, 1);
     ejercicios.splice(result.destination.index, 0, movedItem);
     
     newDias[diaIndex].ejercicios = ejercicios;
-    setDias(newDias); // Update optimistly
+    setDias(newDias);
 
     try {
       await reorderEjercicios(sourceDiaId, ejercicios.map(e => e.id));
@@ -76,6 +64,30 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
       alert("Error al actualizar el nombre");
     } finally {
       setIsSavingName(false);
+    }
+  };
+
+  const handleQuickAdd = async (diaId: string) => {
+    const videoFile = selectedVideos[diaId];
+    if (!videoFile) return;
+
+    setIsAddingToDia(diaId);
+    try {
+      const nombreEjercicio = videoFile.replace(/\.[^/.]+$/, ""); // Remove extension
+      await addEjercicioToDia(diaId, {
+        nombre: nombreEjercicio,
+        series: 4,
+        rango_reps: "10-12",
+        video_url: `/videos/${videoFile}`,
+      });
+      // Clear selection for this day
+      setSelectedVideos(prev => ({ ...prev, [diaId]: "" }));
+      router.refresh(); // Important to get the new exercise with its real DB ID
+    } catch (error) {
+      console.error(error);
+      alert("Error al agregar ejercicio");
+    } finally {
+      setIsAddingToDia(null);
     }
   };
 
@@ -100,15 +112,30 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
       <DragDropContext onDragEnd={handleDragEnd}>
         {dias.map((dia: any) => (
           <div key={dia.id} className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-            <div className="bg-zinc-800/50 p-4 border-b border-zinc-800 flex justify-between items-center">
-              <h2 className="font-bold text-lg text-white">{dia.nombre_dia}</h2>
-              <button 
-                onClick={() => setIsAddingEj(dia.id)}
-                className="text-xs bg-yellow-500 hover:bg-yellow-400 text-zinc-950 font-bold py-1 px-3 rounded flex items-center space-x-1 transition-colors"
-              >
-                <Plus className="w-3 h-3" />
-                <span>Ejercicio</span>
-              </button>
+            <div className="bg-zinc-800/50 p-4 border-b border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="font-bold text-lg text-white w-32">{dia.nombre_dia}</h2>
+              
+              {/* Quick Add Inline */}
+              <div className="flex flex-1 w-full max-w-md gap-2">
+                <select 
+                  value={selectedVideos[dia.id] || ""} 
+                  onChange={(e) => setSelectedVideos(prev => ({ ...prev, [dia.id]: e.target.value }))}
+                  className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-white text-sm focus:outline-none focus:border-yellow-500"
+                >
+                  <option value="">Seleccionar Ejercicio...</option>
+                  {localVideos.map(v => (
+                    <option key={v} value={v}>{v.replace(/\.[^/.]+$/, "")}</option>
+                  ))}
+                </select>
+                <button 
+                  onClick={() => handleQuickAdd(dia.id)}
+                  disabled={!selectedVideos[dia.id] || isAddingToDia === dia.id}
+                  className="bg-yellow-500 hover:bg-yellow-400 disabled:opacity-50 text-zinc-950 p-2 rounded-lg transition-colors flex-shrink-0"
+                  title="Agregar Ejercicio"
+                >
+                  {isAddingToDia === dia.id ? <span className="w-5 h-5 block animate-spin rounded-full border-2 border-zinc-950 border-t-transparent"></span> : <Plus className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
             
             <Droppable droppableId={dia.id}>
@@ -116,7 +143,7 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
                 <div 
                   {...provided.droppableProps}
                   ref={provided.innerRef}
-                  className="p-2 min-h-[100px]"
+                  className="p-2 min-h-[60px]"
                 >
                   {dia.ejercicios.map((ej: any, index: number) => (
                     <Draggable key={ej.id} draggableId={ej.id} index={index}>
@@ -143,10 +170,10 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
                           </div>
                           
                           <div className="flex items-center gap-2">
-                            <button className="p-2 text-zinc-500 hover:text-white transition-colors rounded-lg hover:bg-zinc-800">
+                            <button className="p-2 text-zinc-500 hover:text-white transition-colors rounded-lg hover:bg-zinc-800" title="Editar">
                               <Edit className="w-4 h-4" />
                             </button>
-                            <button className="p-2 text-red-900 hover:text-red-500 transition-colors rounded-lg hover:bg-red-950">
+                            <button className="p-2 text-red-900 hover:text-red-500 transition-colors rounded-lg hover:bg-red-950" title="Eliminar">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
@@ -156,109 +183,17 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
                   ))}
                   {provided.placeholder}
                   
-                  {dia.ejercicios.length === 0 && !isAddingEj && (
-                    <div className="text-center py-6 text-sm text-zinc-500">
-                      No hay ejercicios en este día.
+                  {dia.ejercicios.length === 0 && (
+                    <div className="text-center py-4 text-sm text-zinc-600 italic">
+                      Día de descanso (vacío)
                     </div>
                   )}
                 </div>
               )}
             </Droppable>
-
-            {/* Quick Add Form */}
-            {isAddingEj === dia.id && (
-              <NewEjercicioForm diaId={dia.id} localVideos={localVideos} onCancel={() => setIsAddingEj(null)} />
-            )}
           </div>
         ))}
       </DragDropContext>
-
-      {/* Add Day Button */}
-      {!isAddingDia ? (
-        <button 
-          onClick={() => setIsAddingDia(true)}
-          className="w-full border-2 border-dashed border-zinc-800 hover:border-zinc-600 text-zinc-500 hover:text-zinc-300 rounded-2xl p-6 flex flex-col items-center justify-center transition-colors"
-        >
-          <Plus className="w-8 h-8 mb-2" />
-          <span className="font-medium">Agregar Día de Entrenamiento</span>
-        </button>
-      ) : (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
-          <h3 className="font-bold text-white mb-4">Nuevo Día</h3>
-          <div className="flex gap-3">
-            <input 
-              value={newDiaName}
-              onChange={e => setNewDiaName(e.target.value)}
-              placeholder="Ej: Lunes - Pierna Enfocada"
-              className="flex-1 bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-white focus:outline-none focus:border-yellow-500"
-              autoFocus
-            />
-            <button onClick={handleAddDia} className="bg-yellow-500 hover:bg-yellow-400 text-zinc-950 font-bold px-6 rounded-lg">Guardar</button>
-            <button onClick={() => setIsAddingDia(false)} className="bg-zinc-800 hover:bg-zinc-700 text-white font-medium px-6 rounded-lg">Cancelar</button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function NewEjercicioForm({ diaId, localVideos, onCancel }: { diaId: string, localVideos: string[], onCancel: () => void }) {
-  const router = useRouter();
-  const [nombre, setNombre] = useState("");
-  const [videoLocal, setVideoLocal] = useState("");
-
-  const handleNombreChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setNombre(val);
-    
-    if (val.length > 2) {
-      const match = localVideos.find(v => {
-        const vName = v.toLowerCase().replace(".mp4", "").replace(".webm", "");
-        const input = val.toLowerCase();
-        return vName.includes(input) || input.includes(vName);
-      });
-      if (match) {
-        setVideoLocal(`/videos/${match}`);
-      }
-    }
-  };
-
-  return (
-    <div className="p-4 border-t border-zinc-800 bg-zinc-950/50">
-      <form action={async (formData) => {
-        const video_url_ext = formData.get("video_url_ext") as string;
-        const finalVideoUrl = video_url_ext || videoLocal || undefined;
-
-        await addEjercicioToDia(diaId, {
-          nombre: formData.get("nombre") as string,
-          series: parseInt(formData.get("series") as string),
-          rango_reps: formData.get("rango_reps") as string,
-          rir: formData.get("rir") as string,
-          video_url: finalVideoUrl,
-        });
-        onCancel();
-        router.refresh();
-      }} className="space-y-3">
-        <input required name="nombre" value={nombre} onChange={handleNombreChange} placeholder="Nombre del Ejercicio (ej: Press Banca)" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-        
-        <div className="flex gap-2">
-          <input required name="series" type="number" placeholder="Series" className="w-[15%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-          <input required name="rango_reps" placeholder="Reps (ej: 10-12)" className="w-[20%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-          <input name="rir" placeholder="RIR (opcional)" className="w-[15%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-          <select name="video_local" value={videoLocal} onChange={e => setVideoLocal(e.target.value)} className="w-[25%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm focus:outline-none">
-            <option value="">Video Carpeta</option>
-            {localVideos.map(v => (
-              <option key={v} value={`/videos/${v}`}>{v}</option>
-            ))}
-          </select>
-          <input name="video_url_ext" placeholder="O Link Externo (YouTube)" className="w-[25%] bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-white text-sm" />
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <button type="button" onClick={onCancel} className="px-3 py-1.5 text-xs text-zinc-400 hover:text-white">Cancelar</button>
-          <button type="submit" className="bg-yellow-500 text-zinc-950 px-3 py-1.5 rounded-lg text-xs font-bold">Guardar</button>
-        </div>
-      </form>
     </div>
   );
 }
