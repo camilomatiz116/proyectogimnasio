@@ -49,10 +49,9 @@ export default function Home() {
             
             {/* Logo */}
             <div className="flex items-center cursor-pointer" onClick={() => scrollToSection('inicio')}>
-              <div className="relative w-12 h-12 mr-3">
-                <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain" />
+              <div className="relative w-40 h-16">
+                <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain object-left" />
               </div>
-              <span className="text-2xl font-black tracking-tighter uppercase text-white">JPES <span className="text-yellow-500">GYM</span></span>
             </div>
 
             {/* Desktop Navigation Links */}
@@ -307,10 +306,9 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center mb-6 md:mb-0">
-              <div className="relative w-12 h-12 mr-3">
-                <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain" />
+              <div className="relative w-40 h-16">
+                <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain object-left" />
               </div>
-              <span className="text-xl font-black tracking-tighter uppercase text-white">JPES <span className="text-yellow-500">GYM</span></span>
             </div>
             <div className="text-zinc-500 text-sm text-center md:text-right">
               <p>&copy; 2026 JPES GYM Guatavita. Todos los derechos reservados.</p>
