@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { GripVertical, PlayCircle, Trash2, Edit, Plus } from "lucide-react";
-import { addEjercicioToDia, reorderEjercicios, updateRutinaName } from "@/app/actions/rutinas";
+import { GripVertical, PlayCircle, Trash2, Edit, Plus, AlertCircle } from "lucide-react";
+import { addEjercicioToDia, reorderEjercicios, updateRutinaName, deleteRutina } from "@/app/actions/rutinas";
 import { useRouter } from "next/navigation";
 
 export default function BuilderClient({ rutina }: { rutina: any }) {
@@ -16,6 +16,7 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
   // Track selected video per day
   const [selectedVideos, setSelectedVideos] = useState<Record<string, string>>({});
   const [isAddingToDia, setIsAddingToDia] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     fetch('/api/videos')
@@ -74,15 +75,23 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
     setIsAddingToDia(diaId);
     try {
       const nombreEjercicio = videoFile.replace(/\.[^/.]+$/, ""); // Remove extension
-      await addEjercicioToDia(diaId, {
+      const nuevoEj = await addEjercicioToDia(diaId, {
         nombre: nombreEjercicio,
         series: 4,
         rango_reps: "10-12",
         video_url: `/videos/${videoFile}`,
       });
+      
+      // Update state instantly
+      setDias(prev => prev.map((d: any) => {
+        if (d.id === diaId) {
+          return { ...d, ejercicios: [...d.ejercicios, nuevoEj] };
+        }
+        return d;
+      }));
+      
       // Clear selection for this day
       setSelectedVideos(prev => ({ ...prev, [diaId]: "" }));
-      router.refresh(); // Important to get the new exercise with its real DB ID
     } catch (error) {
       console.error(error);
       alert("Error al agregar ejercicio");
@@ -91,12 +100,25 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
     }
   };
 
+  const handleDeleteRutina = async () => {
+    if (confirm(`¿Estás seguro de que quieres eliminar la rutina completa "${rutina.nombre}"?`)) {
+      setIsDeleting(true);
+      try {
+        await deleteRutina(rutina.id);
+        router.push("/dashboard/admin/rutinas");
+      } catch (e) {
+        alert("Error al eliminar la rutina");
+        setIsDeleting(false);
+      }
+    }
+  };
+
   return (
     <div className="space-y-6 pb-24">
       {/* Título editable */}
-      <div className="mb-8">
+      <div className="mb-8 relative group">
         <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2 block">Nombre de la Rutina</label>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-end">
           <input 
             value={rutinaNombre}
             onChange={(e) => setRutinaNombre(e.target.value)}
@@ -106,6 +128,16 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
             placeholder="Escribe el nombre de la rutina..."
           />
           {isSavingName && <span className="text-zinc-500 text-sm animate-pulse flex-shrink-0 self-end mb-3">Guardando...</span>}
+          
+          <button 
+            onClick={handleDeleteRutina}
+            disabled={isDeleting}
+            className="absolute right-0 top-0 p-3 bg-red-950/40 text-red-500 hover:bg-red-900 hover:text-white rounded-xl transition-colors flex items-center gap-2"
+            title="Eliminar rutina completa"
+          >
+            <Trash2 className="w-5 h-5" />
+            <span className="text-sm font-bold hidden sm:inline">{isDeleting ? "Borrando..." : "Borrar Rutina"}</span>
+          </button>
         </div>
       </div>
 
