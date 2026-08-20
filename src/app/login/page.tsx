@@ -39,7 +39,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md bg-zinc-900 rounded-2xl shadow-2xl border border-zinc-800 p-8">
         <div className="flex flex-col items-center mb-8">
           <div className="relative w-64 h-24 mb-4">
-            <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain object-center" />
+            <Image src="/logos/logo-jpes-blanco.png" alt="Logo Gimnasio" fill className="object-contain object-center" />
           </div>
           <p className="text-zinc-400 mt-2">Inicia sesión en tu cuenta</p>
         </div>

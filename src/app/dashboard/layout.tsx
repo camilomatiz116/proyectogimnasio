@@ -26,7 +26,7 @@ export default async function DashboardLayout({
       <aside className="w-full md:w-64 bg-zinc-900 border-r border-zinc-800 p-4 flex flex-col">
         <div className="mb-8 p-4 bg-zinc-950 rounded-xl border border-zinc-800 flex flex-col items-center">
           <div className="relative w-40 h-16 mb-4">
-            <Image src="/logos/logo.png" alt="Logo Gimnasio" fill className="object-contain object-center" />
+            <Image src="/logos/logo-jpes-blanco.png" alt="Logo Gimnasio" fill className="object-contain object-center" />
           </div>
           <div className="w-full text-left">
             <p className="text-xs text-zinc-500 uppercase tracking-wider font-bold mb-1">Bienvenido</p>
