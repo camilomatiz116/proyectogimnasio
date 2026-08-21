@@ -14,13 +14,8 @@ export default async function BuilderPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="max-w-4xl mx-auto">
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <Link href="/dashboard/admin/rutinas" className="text-zinc-500 hover:text-white flex items-center space-x-2 text-sm font-medium transition-colors">
-            <ArrowLeft className="w-4 h-4" />
-            <span>Volver a rutinas</span>
-          </Link>
-        </div>
+      <div className="mb-2">
+        {/* Espacio preservado si se requiere título o acciones extra aquí en el futuro */}
       </div>
 
       <BuilderClient rutina={rutina} />

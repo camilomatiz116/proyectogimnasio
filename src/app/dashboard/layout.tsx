@@ -5,6 +5,7 @@ import { LogOut, User, Calendar, QrCode } from "lucide-react";
 import Link from "next/link";
 import LogoutButton from "./LogoutButton";
 import Image from "next/image";
+import GlobalBackButton from "./GlobalBackButton";
 
 export default async function DashboardLayout({
   children,
@@ -86,6 +87,7 @@ export default async function DashboardLayout({
 
       {/* Main Content */}
       <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <GlobalBackButton />
         {children}
       </main>
     </div>
