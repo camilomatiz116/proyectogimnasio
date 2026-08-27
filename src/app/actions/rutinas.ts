@@ -32,6 +32,7 @@ export async function createRutina(data: { nombre: string; genero: string; nivel
       nombre: data.nombre,
       genero: data.genero,
       nivel: data.nivel,
+      es_plantilla: true,
     }
   });
   revalidatePath("/dashboard/admin/rutinas");
@@ -198,6 +199,7 @@ export async function getOrCreateUserRoutine(userId: string) {
       nombre: `Rutina de ${user.name?.split(" ")[0] || "Alumno"}`,
       genero: "U",
       nivel: "general",
+      es_plantilla: false,
     }
   });
   
@@ -225,5 +227,88 @@ export async function deleteEjercicio(ejercicioId: string) {
     where: { id: ejercicioId }
   });
   // No revalidar porque el UI se actualiza optimistamente
+  return { success: true };
+}
+
+export async function getPlantillas() {
+  await checkAdmin();
+  return prisma.rutina.findMany({
+    where: { es_plantilla: true },
+    include: {
+      _count: {
+        select: { usuarios: true, dias: true }
+      }
+    },
+    orderBy: { fecha_actualizacion: "desc" }
+  });
+}
+
+export async function cargarPlantillaEnRutina(plantillaId: string, rutinaDestinoId: string) {
+  await checkAdmin();
+  
+  // 1. Obtener la plantilla con sus días y ejercicios
+  const plantilla = await prisma.rutina.findUnique({
+    where: { id: plantillaId },
+    include: {
+      dias: {
+        include: {
+          ejercicios: {
+            orderBy: { orden: "asc" }
+          }
+        }
+      }
+    }
+  });
+  
+  if (!plantilla) throw new Error("Plantilla no encontrada");
+  
+  // 2. Obtener la rutina destino
+  const rutinaDestino = await prisma.rutina.findUnique({
+    where: { id: rutinaDestinoId }
+  });
+  
+  if (!rutinaDestino) throw new Error("Rutina destino no encontrada");
+  
+  // 3. Eliminar todos los días antiguos de la rutina destino (por cascade delete, borrará también los ejercicios)
+  await prisma.diaRutina.deleteMany({
+    where: { rutinaId: rutinaDestinoId }
+  });
+  
+  // 4. Copiar los días y ejercicios de la plantilla a la rutina destino
+  for (const diaPlantilla of plantilla.dias) {
+    const nuevoDia = await prisma.diaRutina.create({
+      data: {
+        rutinaId: rutinaDestinoId,
+        nombre_dia: diaPlantilla.nombre_dia,
+        orden: diaPlantilla.orden
+      }
+    });
+    
+    for (const ejPlantilla of diaPlantilla.ejercicios) {
+      await prisma.ejercicio.create({
+        data: {
+          dia_rutinaId: nuevoDia.id,
+          orden: ejPlantilla.orden,
+          tipo: ejPlantilla.tipo,
+          nombre: ejPlantilla.nombre,
+          video_url: ejPlantilla.video_url,
+          series: ejPlantilla.series,
+          rango_reps: ejPlantilla.rango_reps,
+          rir: ejPlantilla.rir,
+          tempo: ejPlantilla.tempo,
+          movimientos: ejPlantilla.movimientos,
+          reps_por_movimiento: ejPlantilla.reps_por_movimiento,
+          series_texto: ejPlantilla.series_texto,
+          pesos: ejPlantilla.pesos
+        }
+      });
+    }
+  }
+  
+  // 5. Revalidar las páginas
+  revalidatePath(`/dashboard/admin/rutinas/${rutinaDestinoId}`);
+  revalidatePath(`/dashboard/admin/rutinas`);
+  revalidatePath(`/dashboard`);
+  
   return { success: true };
 }

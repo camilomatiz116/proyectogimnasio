@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea/dnd";
-import { GripVertical, PlayCircle, Trash2, Edit, Plus, AlertCircle } from "lucide-react";
-import { addEjercicioToDia, reorderEjercicios, updateRutinaName, deleteRutina, deleteEjercicio } from "@/app/actions/rutinas";
+import { GripVertical, PlayCircle, Trash2, Edit, Plus, AlertCircle, BookOpen } from "lucide-react";
+import { addEjercicioToDia, reorderEjercicios, updateRutinaName, deleteRutina, deleteEjercicio, cargarPlantillaEnRutina } from "@/app/actions/rutinas";
 import { useRouter } from "next/navigation";
 
-export default function BuilderClient({ rutina }: { rutina: any }) {
+export default function BuilderClient({ rutina, plantillas = [] }: { rutina: any, plantillas?: any[] }) {
   const router = useRouter();
   const [dias, setDias] = useState(rutina.dias || []);
   const [rutinaNombre, setRutinaNombre] = useState(rutina.nombre);
@@ -17,6 +17,7 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
   const [selectedVideos, setSelectedVideos] = useState<Record<string, string>>({});
   const [isAddingToDia, setIsAddingToDia] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoadingTemplate, setIsLoadingTemplate] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/videos')
@@ -132,6 +133,26 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
     }
   };
 
+  const handleLoadTemplate = async (templateId: string, templateNombre: string) => {
+    if (!confirm(`¿Estás seguro de que quieres cargar la plantilla "${templateNombre}" en la rutina de este alumno? Esto reemplazará y borrará todos los ejercicios que tenga configurados actualmente.`)) {
+      return;
+    }
+    
+    setIsLoadingTemplate(templateId);
+    try {
+      const res = await cargarPlantillaEnRutina(templateId, rutina.id);
+      if (res.success) {
+        alert("Plantilla cargada con éxito.");
+        router.refresh();
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error al cargar la plantilla.");
+    } finally {
+      setIsLoadingTemplate(null);
+    }
+  };
+
   return (
     <div className="space-y-6 pb-24">
       {/* Título editable */}
@@ -159,6 +180,59 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
           </button>
         </div>
       </div>
+
+      {/* Cargar Plantilla Panel */}
+      {!rutina.es_plantilla && plantillas && plantillas.length > 0 && (
+        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-6">
+          <h3 className="font-bold text-white text-base mb-2 flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-yellow-500" />
+            <span>Cargar Plantilla de Rutina General</span>
+          </h3>
+          <p className="text-zinc-400 text-xs mb-4">
+            Selecciona una plantilla predefinida de Hombres o Mujeres para clonarla instantáneamente en la rutina de este alumno. Al hacerlo, se eliminarán los ejercicios configurados actualmente en esta rutina.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Plantillas Hombres */}
+            {plantillas.some(p => p.genero === "M") && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-blue-400">Hombres ♂</h4>
+                <div className="flex flex-wrap gap-2">
+                  {plantillas.filter(p => p.genero === "M").map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => handleLoadTemplate(p.id, p.nombre)}
+                      disabled={isLoadingTemplate !== null}
+                      className="bg-blue-500/10 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 font-bold px-3 py-2 rounded-xl text-xs transition-all disabled:opacity-50"
+                    >
+                      {isLoadingTemplate === p.id ? "Cargando..." : p.nombre}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Plantillas Mujeres */}
+            {plantillas.some(p => p.genero === "F") && (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-pink-400">Mujeres ♀</h4>
+                <div className="flex flex-wrap gap-2">
+                  {plantillas.filter(p => p.genero === "F").map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => handleLoadTemplate(p.id, p.nombre)}
+                      disabled={isLoadingTemplate !== null}
+                      className="bg-pink-500/10 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 font-bold px-3 py-2 rounded-xl text-xs transition-all disabled:opacity-50"
+                    >
+                      {isLoadingTemplate === p.id ? "Cargando..." : p.nombre}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <DragDropContext onDragEnd={handleDragEnd}>
         {dias.map((dia: any) => (

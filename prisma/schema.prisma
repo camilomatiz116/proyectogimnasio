@@ -97,6 +97,7 @@ model Rutina {
   genero             String   // "M" | "F" | "U"
   nivel              String   // "novato" | "intermedio" | "avanzado"
   version            Int      @default(1)
+  es_plantilla       Boolean  @default(false)
   fecha_actualizacion DateTime @default(now()) @updatedAt
   
   dias               DiaRutina[]
