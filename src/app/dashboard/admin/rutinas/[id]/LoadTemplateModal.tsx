@@ -8,16 +8,19 @@ import { useRouter } from "next/navigation";
 interface LoadTemplateModalProps {
   plantillas: any[];
   rutinaDestinoId: string;
+  tieneEjercicios?: boolean;
 }
 
-export default function LoadTemplateModal({ plantillas, rutinaDestinoId }: LoadTemplateModalProps) {
+export default function LoadTemplateModal({ plantillas, rutinaDestinoId, tieneEjercicios = false }: LoadTemplateModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState<string | null>(null);
   const router = useRouter();
 
   const handleLoad = async (plantillaId: string, plantillaNombre: string) => {
-    if (!confirm(`¿Estás seguro de que quieres cargar la plantilla "${plantillaNombre}"? Esto reemplazará y borrará todos los ejercicios configurados actualmente en esta rutina.`)) {
-      return;
+    if (tieneEjercicios) {
+      if (!confirm(`¡Atención! Este alumno ya tiene ejercicios cargados en su rutina. ¿Estás seguro de que deseas cargar la plantilla "${plantillaNombre}"? Esto borrará y reemplazará permanentemente todos sus ejercicios actuales.`)) {
+        return;
+      }
     }
 
     setLoading(plantillaId);

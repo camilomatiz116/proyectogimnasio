@@ -191,7 +191,11 @@ export default function BuilderClient({ rutina, plantillas = [], usuarios = [] }
             {rutina.es_plantilla ? (
               <AssignCurrentRutinaModal usuarios={usuarios} rutinaId={rutina.id} />
             ) : (
-              <LoadTemplateModal plantillas={plantillas} rutinaDestinoId={rutina.id} />
+              <LoadTemplateModal 
+                plantillas={plantillas} 
+                rutinaDestinoId={rutina.id} 
+                tieneEjercicios={dias.some((dia: any) => dia.ejercicios && dia.ejercicios.length > 0)} 
+              />
             )}
             <button 
               onClick={handleDeleteRutina}
