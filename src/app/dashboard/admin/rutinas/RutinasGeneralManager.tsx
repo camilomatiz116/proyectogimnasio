@@ -5,7 +5,6 @@ import { Users, BookOpen, User, Calendar, Plus, Award } from "lucide-react";
 import UserListClient from "./UserListClient";
 import CreateRutinaModal from "./CreateRutinaModal";
 import DeleteRutinaButton from "./DeleteRutinaButton";
-import AssignRutinaModal from "./AssignRutinaModal";
 import Link from "next/link";
 
 interface RutinasGeneralManagerProps {
@@ -67,7 +66,6 @@ export default function RutinasGeneralManager({ usuarios, plantillas }: RutinasG
               <h2 className="text-xl font-bold text-white">Seguimiento de Alumnos</h2>
               <p className="text-zinc-400 text-sm">Personaliza o visualiza la rutina de cada miembro.</p>
             </div>
-            <AssignRutinaModal rutinas={plantillas} usuarios={usuarios} />
           </div>
           <UserListClient usuarios={usuarios} />
         </div>

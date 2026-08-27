@@ -5,8 +5,9 @@ import { DragDropContext, Droppable, Draggable, DropResult } from "@hello-pangea
 import { GripVertical, PlayCircle, Trash2, Edit, Plus, AlertCircle, BookOpen } from "lucide-react";
 import { addEjercicioToDia, reorderEjercicios, updateRutinaName, deleteRutina, deleteEjercicio, cargarPlantillaEnRutina } from "@/app/actions/rutinas";
 import { useRouter } from "next/navigation";
+import AssignCurrentRutinaModal from "./AssignCurrentRutinaModal";
 
-export default function BuilderClient({ rutina, plantillas = [] }: { rutina: any, plantillas?: any[] }) {
+export default function BuilderClient({ rutina, plantillas = [], usuarios = [] }: { rutina: any, plantillas?: any[], usuarios?: any[] }) {
   const router = useRouter();
   const [dias, setDias] = useState(rutina.dias || []);
   const [rutinaNombre, setRutinaNombre] = useState(rutina.nombre);
@@ -169,15 +170,20 @@ export default function BuilderClient({ rutina, plantillas = [] }: { rutina: any
           />
           {isSavingName && <span className="text-zinc-500 text-sm animate-pulse flex-shrink-0 self-end mb-3">Guardando...</span>}
           
-          <button 
-            onClick={handleDeleteRutina}
-            disabled={isDeleting}
-            className="absolute right-0 top-0 p-3 bg-red-950/40 text-red-500 hover:bg-red-900 hover:text-white rounded-xl transition-colors flex items-center gap-2"
-            title="Eliminar rutina completa"
-          >
-            <Trash2 className="w-5 h-5" />
-            <span className="text-sm font-bold hidden sm:inline">{isDeleting ? "Borrando..." : "Borrar Rutina"}</span>
-          </button>
+          <div className="absolute right-0 top-0 flex gap-2">
+            {rutina.es_plantilla && (
+              <AssignCurrentRutinaModal usuarios={usuarios} rutinaId={rutina.id} />
+            )}
+            <button 
+              onClick={handleDeleteRutina}
+              disabled={isDeleting}
+              className="p-3 bg-red-950/40 text-red-500 hover:bg-red-900 hover:text-white rounded-xl transition-colors flex items-center gap-2"
+              title="Eliminar rutina completa"
+            >
+              <Trash2 className="w-5 h-5" />
+              <span className="text-sm font-bold hidden sm:inline">{isDeleting ? "Borrando..." : "Borrar Rutina"}</span>
+            </button>
+          </div>
         </div>
       </div>
 

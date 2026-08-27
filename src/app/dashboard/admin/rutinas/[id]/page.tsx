@@ -1,4 +1,4 @@
-import { getRutinaById, getPlantillas } from "@/app/actions/rutinas";
+import { getRutinaById, getPlantillas, getAllUsers } from "@/app/actions/rutinas";
 import { notFound } from "next/navigation";
 import BuilderClient from "./BuilderClient";
 
@@ -11,10 +11,11 @@ export default async function BuilderPage({ params }: { params: Promise<{ id: st
   }
 
   const plantillas = rutina.es_plantilla ? [] : await getPlantillas();
+  const usuarios = await getAllUsers();
 
   return (
     <div className="max-w-4xl mx-auto">
-      <BuilderClient rutina={rutina} plantillas={plantillas} />
+      <BuilderClient rutina={rutina} plantillas={plantillas} usuarios={usuarios} />
     </div>
   );
 }
