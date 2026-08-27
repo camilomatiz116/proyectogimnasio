@@ -156,34 +156,36 @@ export default function BuilderClient({ rutina, plantillas = [], usuarios = [] }
 
   return (
     <div className="space-y-6 pb-24">
-      {/* Título editable */}
-      <div className="mb-8 relative group">
-        <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2 block">Nombre de la Rutina</label>
-        <div className="flex gap-3 items-end">
-          <input 
-            value={rutinaNombre}
-            onChange={(e) => setRutinaNombre(e.target.value)}
-            onBlur={handleUpdateName}
-            onKeyDown={(e) => { if(e.key === 'Enter') { e.currentTarget.blur(); } }}
-            className="w-full bg-transparent border-b-2 border-zinc-800 focus:border-yellow-500 text-3xl sm:text-4xl font-black text-white uppercase tracking-tight pb-2 focus:outline-none transition-colors"
-            placeholder="Escribe el nombre de la rutina..."
-          />
-          {isSavingName && <span className="text-zinc-500 text-sm animate-pulse flex-shrink-0 self-end mb-3">Guardando...</span>}
-          
-          <div className="absolute right-0 top-0 flex gap-2">
-            {rutina.es_plantilla && (
-              <AssignCurrentRutinaModal usuarios={usuarios} rutinaId={rutina.id} />
-            )}
-            <button 
-              onClick={handleDeleteRutina}
-              disabled={isDeleting}
-              className="p-3 bg-red-950/40 text-red-500 hover:bg-red-900 hover:text-white rounded-xl transition-colors flex items-center gap-2"
-              title="Eliminar rutina completa"
-            >
-              <Trash2 className="w-5 h-5" />
-              <span className="text-sm font-bold hidden sm:inline">{isDeleting ? "Borrando..." : "Borrar Rutina"}</span>
-            </button>
+      {/* Título editable y controles */}
+      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <label className="text-zinc-500 text-xs font-bold uppercase tracking-wider mb-2 block">Nombre de la Rutina</label>
+          <div className="flex gap-3 items-center">
+            <input 
+              value={rutinaNombre}
+              onChange={(e) => setRutinaNombre(e.target.value)}
+              onBlur={handleUpdateName}
+              onKeyDown={(e) => { if(e.key === 'Enter') { e.currentTarget.blur(); } }}
+              className="w-full bg-transparent border-b border-zinc-800 focus:border-yellow-500 text-2xl sm:text-3xl font-black text-white uppercase tracking-tight pb-1 focus:outline-none transition-colors"
+              placeholder="Escribe el nombre de la rutina..."
+            />
+            {isSavingName && <span className="text-zinc-500 text-xs animate-pulse shrink-0">Guardando...</span>}
           </div>
+        </div>
+        
+        <div className="flex flex-wrap gap-2 shrink-0">
+          {rutina.es_plantilla && (
+            <AssignCurrentRutinaModal usuarios={usuarios} rutinaId={rutina.id} />
+          )}
+          <button 
+            onClick={handleDeleteRutina}
+            disabled={isDeleting}
+            className="p-3 bg-red-950/40 text-red-500 hover:bg-red-900 hover:text-white rounded-xl transition-colors flex items-center gap-2"
+            title="Eliminar rutina completa"
+          >
+            <Trash2 className="w-5 h-5" />
+            <span className="text-sm font-bold hidden sm:inline">{isDeleting ? "Borrando..." : "Borrar Rutina"}</span>
+          </button>
         </div>
       </div>
 
