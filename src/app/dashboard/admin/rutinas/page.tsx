@@ -5,6 +5,12 @@ export default async function AdminRutinasPage() {
   const usuarios = await getAllUsers();
   const plantillas = await getPlantillas();
 
+  // Serializar fechas para pasar de Server Component a Client Component de forma segura
+  const plantillasSerializadas = plantillas.map(p => ({
+    ...p,
+    fecha_actualizacion: p.fecha_actualizacion.toISOString()
+  }));
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-2 gap-4">
@@ -14,7 +20,7 @@ export default async function AdminRutinasPage() {
         </div>
       </div>
 
-      <RutinasGeneralManager usuarios={usuarios} plantillas={plantillas} />
+      <RutinasGeneralManager usuarios={usuarios} plantillas={plantillasSerializadas} />
     </div>
   );
 }

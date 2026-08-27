@@ -31,6 +31,12 @@ export default async function DashboardPage() {
 
   const rutina = user.rutina;
 
+  // Serializar fechas para pasar al Client Component
+  const rutinaSerializada = rutina ? {
+    ...rutina,
+    fecha_actualizacion: rutina.fecha_actualizacion.toISOString()
+  } : null;
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -46,7 +52,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {!rutina ? (
+      {!rutina || !rutinaSerializada ? (
         <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-12 flex flex-col items-center justify-center text-center">
           <div className="w-20 h-20 bg-zinc-950 rounded-full flex items-center justify-center mb-6">
             <Dumbbell className="text-zinc-600 w-10 h-10" />
@@ -57,7 +63,7 @@ export default async function DashboardPage() {
           </p>
         </div>
       ) : (
-        <RoutineDashboard rutina={rutina as any} />
+        <RoutineDashboard rutina={rutinaSerializada as any} />
       )}
     </div>
   );

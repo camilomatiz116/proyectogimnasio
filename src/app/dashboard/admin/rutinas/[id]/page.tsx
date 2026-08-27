@@ -13,9 +13,20 @@ export default async function BuilderPage({ params }: { params: Promise<{ id: st
   const plantillas = rutina.es_plantilla ? [] : await getPlantillas();
   const usuarios = await getAllUsers();
 
+  // Serializar fechas para pasar al Client Component
+  const rutinaSerializada = {
+    ...rutina,
+    fecha_actualizacion: rutina.fecha_actualizacion.toISOString()
+  };
+
+  const plantillasSerializadas = plantillas.map(p => ({
+    ...p,
+    fecha_actualizacion: p.fecha_actualizacion.toISOString()
+  }));
+
   return (
     <div className="max-w-4xl mx-auto">
-      <BuilderClient rutina={rutina} plantillas={plantillas} usuarios={usuarios} />
+      <BuilderClient rutina={rutinaSerializada} plantillas={plantillasSerializadas} usuarios={usuarios} />
     </div>
   );
 }
