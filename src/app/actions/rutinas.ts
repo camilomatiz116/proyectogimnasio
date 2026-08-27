@@ -139,12 +139,121 @@ export async function getAllUsers() {
   });
 }
 
+async function clonarPlantillaEnUsuario(usuarioId: string, plantillaId: string) {
+  const user = await prisma.user.findUnique({
+    where: { id: usuarioId },
+    select: { id: true, name: true, genero: true, nivel: true, rutinaId: true }
+  });
+  if (!user) throw new Error("Usuario no encontrado");
+
+  // 1. Obtener la plantilla con sus días y ejercicios
+  const plantilla = await prisma.rutina.findUnique({
+    where: { id: plantillaId },
+    include: {
+      dias: {
+        include: {
+          ejercicios: {
+            orderBy: { orden: "asc" }
+          }
+        }
+      }
+    }
+  });
+  if (!plantilla) throw new Error("Plantilla no encontrada");
+
+  let rutinaDestinoId = user.rutinaId;
+
+  // 2. Si el usuario no tiene rutina, o su rutina es una plantilla (por error antiguo), crearle una nueva
+  if (!rutinaDestinoId) {
+    const nuevaRutina = await prisma.rutina.create({
+      data: {
+        nombre: `Rutina de ${user.name?.split(" ")[0] || "Alumno"}`,
+        genero: user.genero || plantilla.genero || "U",
+        nivel: user.nivel || plantilla.nivel || "general",
+        es_plantilla: false,
+      }
+    });
+    rutinaDestinoId = nuevaRutina.id;
+    await prisma.user.update({
+      where: { id: usuarioId },
+      data: { rutinaId: nuevaRutina.id }
+    });
+  } else {
+    // Si ya tiene rutina, verificar que no sea una plantilla. Si es plantilla, crearle una nueva
+    const rutinaActual = await prisma.rutina.findUnique({ where: { id: rutinaDestinoId } });
+    if (rutinaActual?.es_plantilla) {
+      const nuevaRutina = await prisma.rutina.create({
+        data: {
+          nombre: `Rutina de ${user.name?.split(" ")[0] || "Alumno"}`,
+          genero: user.genero || plantilla.genero || "U",
+          nivel: user.nivel || plantilla.nivel || "general",
+          es_plantilla: false,
+        }
+      });
+      rutinaDestinoId = nuevaRutina.id;
+      await prisma.user.update({
+        where: { id: usuarioId },
+        data: { rutinaId: nuevaRutina.id }
+      });
+    }
+  }
+
+  // 3. Eliminar todos los días antiguos de la rutina destino
+  await prisma.diaRutina.deleteMany({
+    where: { rutinaId: rutinaDestinoId }
+  });
+
+  // 4. Copiar días y ejercicios de la plantilla a la rutina destino
+  for (const diaPlantilla of plantilla.dias) {
+    const nuevoDia = await prisma.diaRutina.create({
+      data: {
+        rutinaId: rutinaDestinoId,
+        nombre_dia: diaPlantilla.nombre_dia,
+        orden: diaPlantilla.orden
+      }
+    });
+
+    for (const ejPlantilla of diaPlantilla.ejercicios) {
+      await prisma.ejercicio.create({
+        data: {
+          dia_rutinaId: nuevoDia.id,
+          orden: ejPlantilla.orden,
+          tipo: ejPlantilla.tipo,
+          nombre: ejPlantilla.nombre,
+          video_url: ejPlantilla.video_url,
+          series: ejPlantilla.series,
+          rango_reps: ejPlantilla.rango_reps,
+          rir: ejPlantilla.rir,
+          tempo: ejPlantilla.tempo,
+          movimientos: ejPlantilla.movimientos,
+          reps_por_movimiento: ejPlantilla.reps_por_movimiento,
+          series_texto: ejPlantilla.series_texto,
+          pesos: ejPlantilla.pesos
+        }
+      });
+    }
+  }
+}
+
 export async function assignRutina(usuarioId: string, rutinaId: string | null) {
   await checkAdmin();
-  await prisma.user.update({
-    where: { id: usuarioId },
-    data: { rutinaId }
-  });
+  if (rutinaId === null) {
+    await prisma.user.update({
+      where: { id: usuarioId },
+      data: { rutinaId: null }
+    });
+  } else {
+    // Verificar si la rutina seleccionada es una plantilla
+    const rutina = await prisma.rutina.findUnique({ where: { id: rutinaId } });
+    if (rutina?.es_plantilla) {
+      await clonarPlantillaEnUsuario(usuarioId, rutinaId);
+    } else {
+      await prisma.user.update({
+        where: { id: usuarioId },
+        data: { rutinaId }
+      });
+    }
+  }
   revalidatePath("/dashboard/admin/rutinas");
   return { success: true };
 }
