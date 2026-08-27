@@ -210,12 +210,26 @@ export default function BuilderClient({ rutina }: { rutina: any }) {
                           
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h4 className="font-bold text-white text-sm">{ej.nombre}</h4>
+                              <span className="text-[9px] uppercase font-black bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded border border-zinc-700">
+                                {ej.tipo === "superset" ? "Superset" : ej.tipo === "drop_set" ? "Drop Set" : "Normal"}
+                              </span>
+                              <h4 className="font-bold text-white text-sm">
+                                {ej.tipo === "superset" ? ej.movimientos.join(" + ") : ej.nombre}
+                              </h4>
                               {ej.video_url && <a href={ej.video_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300"><PlayCircle className="w-4 h-4" /></a>}
                             </div>
-                            <div className="flex gap-3 mt-1 text-xs text-zinc-400">
-                              <span><strong className="text-zinc-300">{ej.series}</strong> sets</span>
-                              <span><strong className="text-zinc-300">{ej.rango_reps}</strong> reps</span>
+                            <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-zinc-400">
+                              {ej.tipo === "drop_set" ? (
+                                <>
+                                  <span><strong className="text-zinc-300">{ej.pesos}</strong> pesos</span>
+                                  {ej.series_texto && <span><strong className="text-zinc-300">{ej.series_texto}</strong></span>}
+                                </>
+                              ) : (
+                                <>
+                                  <span><strong className="text-zinc-300">{ej.tipo === "superset" ? (ej.series_texto || ej.series) : ej.series}</strong> sets</span>
+                                  <span><strong className="text-zinc-300">{ej.tipo === "superset" ? ej.reps_por_movimiento.join(" · ") : ej.rango_reps}</strong> reps</span>
+                                </>
+                              )}
                               {ej.rir && <span>RIR <strong className="text-zinc-300">{ej.rir}</strong></span>}
                             </div>
                           </div>

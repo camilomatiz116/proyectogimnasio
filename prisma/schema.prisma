@@ -114,15 +114,22 @@ model DiaRutina {
 }
 
 model Ejercicio {
-  id            String   @id @default(cuid())
-  dia_rutinaId  String
-  orden         Int
-  nombre        String
-  video_url     String?
-  series        Int
-  rango_reps    String   // ej. "10-12"
-  rir           String?  // Repetitions in Reserve, ej. "2"
-  tempo         String?  // ej. "3-0-X-0"
+  id                  String     @id @default(cuid())
+  dia_rutinaId        String
+  orden               Int
+  tipo                String     @default("normal") // "normal" | "superset" | "drop_set"
+  nombre              String?    // Se hace opcional porque en superset se usan movimientos
+  video_url           String?
+  series              Int?       // Se hace opcional porque superset y drop_set usan textos
+  rango_reps          String?    // Se hace opcional porque superset y drop_set usan sus propias repeticiones
+  rir                 String?
+  tempo               String?
+  
+  // Nuevos campos
+  movimientos         String[]   // Nombres de los movimientos del superset
+  reps_por_movimiento String[]   // Rangos de reps por cada movimiento en superset
+  series_texto        String?    // Para textos de series como "3 series (del par)" o "4 series de 4 pesos"
+  pesos               Int?       // Para el número de bajadas de peso en drop set
   
   dia_rutina    DiaRutina @relation(fields: [dia_rutinaId], references: [id], onDelete: Cascade)
 }

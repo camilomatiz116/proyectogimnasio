@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { Dumbbell, Info, PlayCircle } from "lucide-react";
+import { Dumbbell, Info } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import VideoModalButton from "./VideoModalButton";
+import RoutineDashboard from "@/components/RoutineDashboard";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -57,46 +57,7 @@ export default async function DashboardPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-6 pb-20">
-          <div className="bg-zinc-900 p-6 rounded-2xl border border-zinc-800 mb-8">
-            <h2 className="text-2xl font-black uppercase tracking-wide text-white mb-1">{rutina.nombre}</h2>
-            <p className="text-zinc-400 text-sm">Actualizada el {rutina.fecha_actualizacion.toLocaleDateString()}</p>
-          </div>
-
-          {rutina.dias.map(dia => (
-            <div key={dia.id} className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden">
-              <div className="bg-zinc-900 p-4 border-b border-zinc-800">
-                <h3 className="text-lg font-bold text-yellow-500">{dia.nombre_dia}</h3>
-              </div>
-              
-              <div className="p-4 space-y-3">
-                {dia.ejercicios.length === 0 ? (
-                  <p className="text-zinc-500 text-sm text-center py-4">Día de descanso o sin ejercicios.</p>
-                ) : (
-                  dia.ejercicios.map(ej => (
-                    <div key={ej.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                      <div className="flex-1">
-                        <h4 className="font-bold text-white text-lg flex items-center gap-2">
-                          {ej.nombre}
-                          {ej.video_url && (
-                            <VideoModalButton videoUrl={ej.video_url} titulo={ej.nombre} />
-                          )}
-                        </h4>
-                        
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 mt-2 text-sm">
-                          <p className="text-zinc-400"><span className="text-zinc-500 font-semibold mr-1">SERIES:</span> <span className="text-white font-bold">{ej.series}</span></p>
-                          <p className="text-zinc-400"><span className="text-zinc-500 font-semibold mr-1">REPS:</span> <span className="text-white font-bold">{ej.rango_reps}</span></p>
-                          {ej.rir && <p className="text-zinc-400"><span className="text-zinc-500 font-semibold mr-1">RIR:</span> <span className="text-white font-bold">{ej.rir}</span></p>}
-                          {ej.tempo && <p className="text-zinc-400"><span className="text-zinc-500 font-semibold mr-1">TEMPO:</span> <span className="text-white font-bold">{ej.tempo}</span></p>}
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
+        <RoutineDashboard rutina={rutina as any} />
       )}
     </div>
   );

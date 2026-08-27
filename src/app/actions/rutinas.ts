@@ -72,7 +72,22 @@ export async function addDiaToRutina(rutinaId: string, nombre_dia: string) {
   return dia;
 }
 
-export async function addEjercicioToDia(diaId: string, data: { nombre: string; video_url?: string; series: number; rango_reps: string; rir?: string; tempo?: string }) {
+export async function addEjercicioToDia(
+  diaId: string, 
+  data: { 
+    tipo?: string;
+    nombre?: string | null; 
+    video_url?: string | null; 
+    series?: number | null; 
+    rango_reps?: string | null; 
+    rir?: string | null; 
+    tempo?: string | null;
+    movimientos?: string[];
+    reps_por_movimiento?: string[];
+    series_texto?: string | null;
+    pesos?: number | null;
+  }
+) {
   await checkAdmin();
   
   const ejerciciosCount = await prisma.ejercicio.count({ where: { dia_rutinaId: diaId } });
@@ -81,7 +96,17 @@ export async function addEjercicioToDia(diaId: string, data: { nombre: string; v
     data: {
       dia_rutinaId: diaId,
       orden: ejerciciosCount,
-      ...data
+      tipo: data.tipo ?? "normal",
+      nombre: data.nombre,
+      video_url: data.video_url,
+      series: data.series,
+      rango_reps: data.rango_reps,
+      rir: data.rir,
+      tempo: data.tempo,
+      movimientos: data.movimientos ?? [],
+      reps_por_movimiento: data.reps_por_movimiento ?? [],
+      series_texto: data.series_texto,
+      pesos: data.pesos,
     }
   });
   
