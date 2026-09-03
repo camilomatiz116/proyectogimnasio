@@ -182,7 +182,7 @@ async function clonarPlantillaEnUsuario(usuarioId: string, plantillaId: string) 
   } else {
     // Si ya tiene rutina, verificar que no sea una plantilla. Si es plantilla, crearle una nueva
     const rutinaActual = await prisma.rutina.findUnique({ where: { id: rutinaDestinoId } });
-    if (rutinaActual?.es_plantilla) {
+    if (!rutinaActual || rutinaActual.es_plantilla) {
       const nuevaRutina = await prisma.rutina.create({
         data: {
           nombre: nombreRutina,
@@ -387,6 +387,8 @@ export async function cargarPlantillaEnRutina(plantillaId: string, rutinaDestino
     where: { id: rutinaDestinoId }
   });
   
+  if (!rutinaDestino) throw new Error("Rutina destino no encontrada");
+
   // 3. Actualizar datos de la rutina destino con la información de la plantilla cargada
   const nombreBase = rutinaDestino.nombre.includes("(") 
     ? rutinaDestino.nombre.split(" (")[0]

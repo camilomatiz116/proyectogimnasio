@@ -42,7 +42,18 @@ export default async function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-white tracking-tight">Tu Rutina de Entrenamiento</h1>
-          <p className="text-zinc-400 mt-1">Nivel: <span className="capitalize text-yellow-500 font-semibold">{user.nivel || "Sin definir"}</span></p>
+          {rutina ? (
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <span className="text-base sm:text-lg font-bold text-yellow-500">
+                {rutina.nombre}
+              </span>
+              <span className="text-xs px-2.5 py-0.5 rounded-full font-bold uppercase bg-yellow-500/10 text-yellow-500 border border-yellow-500/20">
+                {rutina.genero === "M" ? "Hombres ♂" : rutina.genero === "F" ? "Mujeres ♀" : "Unisex ⚧"} · {rutina.nivel || user.nivel || "General"}
+              </span>
+            </div>
+          ) : (
+            <p className="text-zinc-400 mt-1">Nivel: <span className="capitalize text-yellow-500 font-semibold">{user.nivel || "Sin definir"}</span></p>
+          )}
         </div>
         <div className="text-sm bg-zinc-900 border border-zinc-800 rounded-lg p-3 flex items-start gap-3 max-w-sm">
           <Info className="w-5 h-5 text-yellow-500 shrink-0 mt-0.5" />
