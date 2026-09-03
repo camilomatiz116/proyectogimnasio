@@ -164,12 +164,13 @@ async function clonarPlantillaEnUsuario(usuarioId: string, plantillaId: string) 
   let rutinaDestinoId = user.rutinaId;
 
   // 2. Si el usuario no tiene rutina, o su rutina es una plantilla (por error antiguo), crearle una nueva
+  const nombreRutina = `Rutina de ${user.name?.split(" ")[0] || "Alumno"} (${plantilla.nombre})`;
   if (!rutinaDestinoId) {
     const nuevaRutina = await prisma.rutina.create({
       data: {
-        nombre: `Rutina de ${user.name?.split(" ")[0] || "Alumno"}`,
-        genero: user.genero || plantilla.genero || "U",
-        nivel: user.nivel || plantilla.nivel || "general",
+        nombre: nombreRutina,
+        genero: plantilla.genero || user.genero || "U",
+        nivel: plantilla.nivel || user.nivel || "general",
         es_plantilla: false,
       }
     });
@@ -184,9 +185,9 @@ async function clonarPlantillaEnUsuario(usuarioId: string, plantillaId: string) 
     if (rutinaActual?.es_plantilla) {
       const nuevaRutina = await prisma.rutina.create({
         data: {
-          nombre: `Rutina de ${user.name?.split(" ")[0] || "Alumno"}`,
-          genero: user.genero || plantilla.genero || "U",
-          nivel: user.nivel || plantilla.nivel || "general",
+          nombre: nombreRutina,
+          genero: plantilla.genero || user.genero || "U",
+          nivel: plantilla.nivel || user.nivel || "general",
           es_plantilla: false,
         }
       });
@@ -194,6 +195,16 @@ async function clonarPlantillaEnUsuario(usuarioId: string, plantillaId: string) 
       await prisma.user.update({
         where: { id: usuarioId },
         data: { rutinaId: nuevaRutina.id }
+      });
+    } else {
+      // Actualizar nombre, género y nivel
+      await prisma.rutina.update({
+        where: { id: rutinaDestinoId },
+        data: {
+          nombre: nombreRutina,
+          genero: plantilla.genero || rutinaActual.genero,
+          nivel: plantilla.nivel || rutinaActual.nivel,
+        }
       });
     }
   }
@@ -376,9 +387,27 @@ export async function cargarPlantillaEnRutina(plantillaId: string, rutinaDestino
     where: { id: rutinaDestinoId }
   });
   
-  if (!rutinaDestino) throw new Error("Rutina destino no encontrada");
-  
-  // 3. Eliminar todos los días antiguos de la rutina destino (por cascade delete, borrará también los ejercicios)
+  // 3. Actualizar datos de la rutina destino con la información de la plantilla cargada
+  const nombreBase = rutinaDestino.nombre.includes("(") 
+    ? rutinaDestino.nombre.split(" (")[0]
+    : rutinaDestino.nombre.includes(" - ")
+    ? rutinaDestino.nombre.split(" - ")[0]
+    : rutinaDestino.nombre;
+
+  const nuevoNombre = rutinaDestino.es_plantilla 
+    ? rutinaDestino.nombre 
+    : `${nombreBase} (${plantilla.nombre})`;
+
+  await prisma.rutina.update({
+    where: { id: rutinaDestinoId },
+    data: {
+      nombre: nuevoNombre,
+      genero: plantilla.genero || rutinaDestino.genero,
+      nivel: plantilla.nivel || rutinaDestino.nivel,
+    }
+  });
+
+  // 4. Eliminar todos los días antiguos de la rutina destino (por cascade delete, borrará también los ejercicios)
   await prisma.diaRutina.deleteMany({
     where: { rutinaId: rutinaDestinoId }
   });
