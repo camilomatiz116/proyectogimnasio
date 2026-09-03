@@ -21,6 +21,12 @@ export default function BuilderClient({ rutina, plantillas = [], usuarios = [] }
   const [isDeleting, setIsDeleting] = useState(false);
   const [isLoadingTemplate, setIsLoadingTemplate] = useState<string | null>(null);
 
+  // Sincronizar estado cuando Next.js refresca la rutina desde el servidor
+  useEffect(() => {
+    setDias(rutina.dias || []);
+    setRutinaNombre(rutina.nombre);
+  }, [rutina]);
+
   useEffect(() => {
     fetch('/api/videos')
       .then(res => res.json())
@@ -77,9 +83,9 @@ export default function BuilderClient({ rutina, plantillas = [], usuarios = [] }
 
     setIsAddingToDia(diaId);
     try {
-      const nombreEjercicio = videoFile.replace(/\.[^/.]+$/, ""); // Remove extension
+      const cleanName = videoFile.split("/").pop()?.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ") || videoFile;
       const nuevoEj = await addEjercicioToDia(diaId, {
-        nombre: nombreEjercicio,
+        nombre: cleanName,
         series: 4,
         rango_reps: "10-12",
         video_url: `/videos/${videoFile}`,
@@ -224,9 +230,16 @@ export default function BuilderClient({ rutina, plantillas = [], usuarios = [] }
                   className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-white text-sm focus:outline-none focus:border-yellow-500"
                 >
                   <option value="">Seleccionar Ejercicio...</option>
-                  {localVideos.map(v => (
-                    <option key={v} value={v}>{v.replace(/\.[^/.]+$/, "")}</option>
-                  ))}
+                  {localVideos.map(v => {
+                    const isSubfolder = v.includes("/");
+                    const folderName = isSubfolder ? v.split("/")[0] : "";
+                    const fileName = v.split("/").pop()?.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ") || v;
+                    return (
+                      <option key={v} value={v}>
+                        {isSubfolder ? `[${folderName}] ` : ""}{fileName}
+                      </option>
+                    );
+                  })}
                 </select>
                 <button 
                   onClick={() => handleQuickAdd(dia.id)}

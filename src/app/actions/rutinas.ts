@@ -415,6 +415,7 @@ export async function cargarPlantillaEnRutina(plantillaId: string, rutinaDestino
   }
   
   // 5. Revalidar las páginas
+  revalidatePath(`/dashboard/admin/rutinas/[id]`, "page");
   revalidatePath(`/dashboard/admin/rutinas/${rutinaDestinoId}`);
   revalidatePath(`/dashboard/admin/rutinas`);
   revalidatePath(`/dashboard`);

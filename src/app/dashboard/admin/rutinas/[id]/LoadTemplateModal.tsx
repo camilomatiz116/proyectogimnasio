@@ -27,9 +27,8 @@ export default function LoadTemplateModal({ plantillas, rutinaDestinoId, tieneEj
     try {
       const res = await cargarPlantillaEnRutina(plantillaId, rutinaDestinoId);
       if (res.success) {
-        alert("Plantilla cargada con éxito.");
         setIsOpen(false);
-        router.refresh();
+        window.location.reload();
       }
     } catch (e) {
       console.error(e);
