@@ -17,6 +17,7 @@ export async function updateProfile(formData: FormData) {
   const altura = parseFloat(formData.get("altura") as string) || null;
   const nivel = formData.get("nivel") as string;
   const genero = formData.get("genero") as string;
+  const qr_auto_login = formData.get("qr_auto_login") === "on";
 
   await prisma.user.update({
     where: { id: userId },
@@ -27,8 +28,10 @@ export async function updateProfile(formData: FormData) {
       altura,
       nivel,
       genero,
+      qr_auto_login,
     }
   });
+
 
   revalidatePath("/dashboard/perfil");
   revalidatePath("/dashboard");

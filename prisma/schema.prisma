@@ -58,6 +58,7 @@ model User {
   fecha_registro DateTime @default(now())
   activo        Boolean   @default(true)
   fecha_vencimiento_membresia DateTime?
+  qr_auto_login Boolean   @default(true) // true = entrar directo al escanear QR, false = pedir credenciales
 
   accounts      Account[]
   sessions      Session[]
@@ -131,6 +132,7 @@ model Ejercicio {
   reps_por_movimiento String[]   // Rangos de reps por cada movimiento en superset
   series_texto        String?    // Para textos de series como "3 series (del par)" o "4 series de 4 pesos"
   pesos               Int?       // Para el número de bajadas de peso en drop set
+  videos_urls         String[]   // Para múltiples videos (ej. en supersets)
   
   dia_rutina    DiaRutina @relation(fields: [dia_rutinaId], references: [id], onDelete: Cascade)
 }

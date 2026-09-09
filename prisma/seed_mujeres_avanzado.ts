@@ -90,7 +90,8 @@ async function main() {
         series_texto: "5 series",
         reps_por_movimiento: ["16-25", "16-25"],
         rir: "rir 1 o falló",
-        video_url: "/videos/avanzadomujeres/Aductores-fem.mp4"
+        video_url: "/videos/avanzadomujeres/Aductores-fem.mp4",
+        videos_urls: ["/videos/avanzadomujeres/Aductores-fem.mp4", "/videos/avanzadomujeres/Gemelos-fem.mp4"]
       },
       {
         dia_rutinaId: dia1.id,
@@ -155,7 +156,8 @@ async function main() {
         series_texto: "3 series",
         reps_por_movimiento: ["12-15 reps", "12-15 reps"],
         rir: "rir 1-2",
-        video_url: "/videos/avanzadomujeres/Peso_muerto_rumano-fem.mp4"
+        video_url: "/videos/avanzadomujeres/Peso_muerto_rumano-fem.mp4",
+        videos_urls: ["/videos/avanzadomujeres/Peso_muerto_rumano-fem.mp4", "/videos/avanzadomujeres/Sumo_mancuerna-fem.mp4"]
       },
       {
         dia_rutinaId: dia2.id,
@@ -250,7 +252,8 @@ async function main() {
         series_texto: "5 series",
         reps_por_movimiento: ["10-15 reps", "10-15 reps"],
         rir: "rir 1-2",
-        video_url: "/videos/avanzadomujeres/Sumo_maquina-fem.mp4"
+        video_url: "/videos/avanzadomujeres/Sumo_maquina-fem.mp4",
+        videos_urls: ["/videos/avanzadomujeres/Sumo_maquina-fem.mp4", "/videos/avanzadomujeres/Gemelos-fem.mp4"]
       },
       {
         dia_rutinaId: dia3.id,
@@ -261,7 +264,8 @@ async function main() {
         series_texto: "4 series",
         reps_por_movimiento: ["15-20 reps", "15-20 reps"],
         rir: "rir 1-2",
-        video_url: "/videos/avanzadomujeres/Subir_banco_mancuernas-fem.mp4"
+        video_url: "/videos/avanzadomujeres/Subir_banco_mancuernas-fem.mp4",
+        videos_urls: ["/videos/avanzadomujeres/Extension_cuadriceps-fem.mp4", "/videos/avanzadomujeres/Subir_banco_mancuernas-fem.mp4"]
       },
       {
         dia_rutinaId: dia3.id,
@@ -318,7 +322,8 @@ async function main() {
         series_texto: "4 series",
         reps_por_movimiento: ["15-20", "15-20"],
         rir: "rir 1-2",
-        video_url: "/videos/avanzadomujeres/Sentadilla_frontal-fem.mp4"
+        video_url: "/videos/avanzadomujeres/Sentadilla_frontal-fem.mp4",
+        videos_urls: ["/videos/avanzadomujeres/Aductores-fem.mp4", "/videos/avanzadomujeres/Sentadilla_frontal-fem.mp4"]
       },
       {
         dia_rutinaId: dia4.id,
@@ -339,7 +344,8 @@ async function main() {
         series_texto: "5 series",
         reps_por_movimiento: ["8-20", "8-20"],
         rir: "rir 1-2",
-        video_url: "/videos/avanzadomujeres/Hack_pesada-fem.mp4"
+        video_url: "/videos/avanzadomujeres/Hack_pesada-fem.mp4",
+        videos_urls: ["/videos/avanzadomujeres/Hack_pesada-fem.mp4", "/videos/avanzadomujeres/Avanzada_desplane_posterior-fem.mp4"]
       },
       {
         dia_rutinaId: dia4.id,

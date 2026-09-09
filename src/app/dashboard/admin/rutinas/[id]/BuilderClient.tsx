@@ -7,6 +7,7 @@ import { addEjercicioToDia, reorderEjercicios, updateRutinaName, deleteRutina, d
 import { useRouter } from "next/navigation";
 import AssignCurrentRutinaModal from "./AssignCurrentRutinaModal";
 import LoadTemplateModal from "./LoadTemplateModal";
+import VideoModalButton from "@/app/dashboard/VideoModalButton";
 
 export default function BuilderClient({ rutina, plantillas = [], usuarios = [] }: { rutina: any, plantillas?: any[], usuarios?: any[] }) {
   const router = useRouter();
@@ -279,7 +280,15 @@ export default function BuilderClient({ rutina, plantillas = [], usuarios = [] }
                               <h4 className="font-bold text-white text-sm">
                                 {ej.tipo === "superset" ? ej.movimientos.join(" + ") : ej.nombre}
                               </h4>
-                              {ej.video_url && <a href={ej.video_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300"><PlayCircle className="w-4 h-4" /></a>}
+                               {(ej.video_url || (ej.videos_urls && ej.videos_urls.length > 0)) && (
+                                <VideoModalButton 
+                                  videoUrl={ej.video_url} 
+                                  videosUrls={ej.videos_urls} 
+                                  titulo={ej.tipo === "superset" ? ej.movimientos.join(" + ") : (ej.nombre || "")} 
+                                  movimientos={ej.movimientos}
+                                  className="inline-flex items-center gap-1 text-xs text-yellow-500 hover:text-yellow-400 bg-zinc-900 border border-zinc-800 hover:bg-zinc-800 px-2 py-0.5 rounded transition-colors"
+                                />
+                              )}
                             </div>
                             <div className="flex flex-wrap gap-x-3 gap-y-1 mt-1 text-xs text-zinc-400">
                               {ej.tipo === "drop_set" ? (

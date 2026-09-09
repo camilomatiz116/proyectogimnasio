@@ -11,6 +11,7 @@ interface Ejercicio {
   tipo: string;
   nombre: string | null;
   video_url: string | null;
+  videos_urls?: string[];
   series: number | null;
   rango_reps: string | null;
   rir: string | null;
@@ -119,8 +120,15 @@ export default function RoutineDashboard({ rutina }: { rutina: Rutina }) {
                 </p>
               ) : (
                 activeDay.ejercicios.map((ej, index) => {
-                  const videoUrl = ej.video_url;
-                  const hasVideo = !!videoUrl;
+                  const isValidVideo = (url: string | null | undefined) => 
+                    !!url && (url.startsWith("/videos/") || url.endsWith(".mp4") || url.includes(".mp4"));
+
+                  const rawUrls = (ej.videos_urls && ej.videos_urls.length > 0)
+                    ? ej.videos_urls
+                    : ej.video_url ? [ej.video_url] : [];
+
+                  const videosUrls = rawUrls.filter(isValidVideo);
+                  const hasVideo = videosUrls.length > 0;
                   const exerciseTitle = ej.tipo === "superset" 
                     ? ej.movimientos.join(" + ")
                     : (ej.nombre || "");
@@ -215,20 +223,26 @@ export default function RoutineDashboard({ rutina }: { rutina: Rutina }) {
                       {/* Botón de Video */}
                       <div className="shrink-0 pt-2 md:pt-0 w-full md:w-auto">
                         {hasVideo ? (
-                          <VideoModalButton videoUrl={videoUrl} titulo={exerciseTitle} />
+                          <VideoModalButton 
+                            videoUrl={videosUrls[0]} 
+                            videosUrls={videosUrls} 
+                            titulo={exerciseTitle} 
+                            movimientos={ej.movimientos}
+                          />
                         ) : (
                           <button
                             disabled
                             className="flex items-center justify-center space-x-1.5 bg-zinc-800/40 text-zinc-500 font-semibold px-3 py-1.5 rounded-lg text-sm cursor-not-allowed border border-zinc-800 w-full md:w-auto"
                           >
                             <PlayCircle className="w-4 h-4" />
-                            <span>Video pendiente</span>
+                            <span>Falta video explicativo</span>
                           </button>
                         )}
                       </div>
                     </div>
                   );
                 })
+
               )}
             </div>
           </div>

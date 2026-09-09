@@ -10,6 +10,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [telefono, setTelefono] = useState("");
+  const [qrAutoLogin, setQrAutoLogin] = useState(true);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -23,7 +24,7 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, telefono }),
+        body: JSON.stringify({ name, email, password, telefono, qr_auto_login: qrAutoLogin }),
       });
 
       if (!res.ok) {
@@ -103,6 +104,25 @@ export default function RegisterPage() {
             />
           </div>
 
+          <div className="bg-zinc-950 border border-zinc-800/80 rounded-xl p-4 space-y-2 mt-2">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={qrAutoLogin}
+                onChange={(e) => setQrAutoLogin(e.target.checked)}
+                className="mt-1 w-4 h-4 rounded border-zinc-700 text-yellow-500 focus:ring-yellow-500 bg-zinc-900"
+              />
+              <div>
+                <span className="text-sm font-bold text-white block">Ingreso directo por Código QR</span>
+                <span className="text-xs text-zinc-400 block leading-normal mt-0.5">
+                  {qrAutoLogin
+                    ? "Al escanear el QR del gimnasio, ingresarás directamente a tu cuenta sin pedir credenciales."
+                    : "Solicitar iniciar sesión con usuario y clave cada vez que escanees el código QR."}
+                </span>
+              </div>
+            </label>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
@@ -111,6 +131,7 @@ export default function RegisterPage() {
             {loading ? "Creando cuenta..." : "Registrarse"}
           </button>
         </form>
+
 
         <p className="text-zinc-400 text-center mt-6 text-sm">
           ¿Ya tienes una cuenta?{" "}

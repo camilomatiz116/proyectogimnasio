@@ -79,6 +79,7 @@ export async function addEjercicioToDia(
     tipo?: string;
     nombre?: string | null; 
     video_url?: string | null; 
+    videos_urls?: string[];
     series?: number | null; 
     rango_reps?: string | null; 
     rir?: string | null; 
@@ -100,6 +101,7 @@ export async function addEjercicioToDia(
       tipo: data.tipo ?? "normal",
       nombre: data.nombre,
       video_url: data.video_url,
+      videos_urls: data.videos_urls ?? [],
       series: data.series,
       rango_reps: data.rango_reps,
       rir: data.rir,
@@ -232,6 +234,7 @@ async function clonarPlantillaEnUsuario(usuarioId: string, plantillaId: string) 
           tipo: ejPlantilla.tipo,
           nombre: ejPlantilla.nombre,
           video_url: ejPlantilla.video_url,
+          videos_urls: ejPlantilla.videos_urls,
           series: ejPlantilla.series,
           rango_reps: ejPlantilla.rango_reps,
           rir: ejPlantilla.rir,
@@ -432,6 +435,7 @@ export async function cargarPlantillaEnRutina(plantillaId: string, rutinaDestino
           tipo: ejPlantilla.tipo,
           nombre: ejPlantilla.nombre,
           video_url: ejPlantilla.video_url,
+          videos_urls: ejPlantilla.videos_urls,
           series: ejPlantilla.series,
           rango_reps: ejPlantilla.rango_reps,
           rir: ejPlantilla.rir,

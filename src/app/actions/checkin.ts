@@ -10,6 +10,11 @@ export async function registerCheckIn(qrData: string) {
 
   const userId = (session.user as any).id;
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { qr_auto_login: true, name: true }
+  });
+
   // Validar que el QR corresponda al gimnasio
   if (qrData !== "JPES-GYM-CHECKIN-V1") {
     throw new Error("Código QR inválido para este gimnasio.");
@@ -39,5 +44,13 @@ export async function registerCheckIn(qrData: string) {
     }
   });
 
-  return { success: true, message: "¡Asistencia registrada correctamente!" };
+  const autoLoginText = user?.qr_auto_login 
+    ? "Acceso automático activo para tus próximos escaneos." 
+    : "Configuración: Se solicitarán credenciales en cada sesión nueva.";
+
+  return { 
+    success: true, 
+    message: `¡Asistencia registrada correctamente, ${user?.name || "Alumno"}! ${autoLoginText}` 
+  };
+
 }

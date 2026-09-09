@@ -118,7 +118,26 @@ export default async function PerfilPage() {
 
           </div>
 
+          {/* Configuración de Preferencia de Acceso por QR */}
+          <div className="bg-zinc-950/70 border border-zinc-800 rounded-xl p-5 space-y-2">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                name="qr_auto_login"
+                defaultChecked={user.qr_auto_login ?? true}
+                className="mt-1 w-5 h-5 rounded border-zinc-700 text-yellow-500 focus:ring-yellow-500 bg-zinc-900"
+              />
+              <div>
+                <span className="text-base font-bold text-white block">Acceso Directo por Código QR</span>
+                <span className="text-sm text-zinc-400 block leading-relaxed mt-0.5">
+                  Si está activado, al escanear el QR del gimnasio ingresarás directamente a tu cuenta y se registrará tu asistencia sin solicitar tus datos de nuevo. Si está desactivado, el sistema te solicitará iniciar sesión cada vez que escanees el QR.
+                </span>
+              </div>
+            </label>
+          </div>
+
           <div className="pt-6 border-t border-zinc-800 flex justify-end">
+
             <button
               type="submit"
               className="bg-yellow-500 hover:bg-yellow-400 text-zinc-950 font-bold py-3 px-6 rounded-lg transition-colors flex items-center space-x-2"

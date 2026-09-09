@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, telefono } = await req.json();
+    const { name, email, password, telefono, qr_auto_login } = await req.json();
 
     if (!email || !password || !name) {
       return NextResponse.json({ message: "Faltan campos obligatorios" }, { status: 400 });
@@ -30,8 +30,10 @@ export async function POST(req: Request) {
         password: hashedPassword,
         telefono: telefono || null,
         rol: "alumno", // Por defecto todos son alumnos
+        qr_auto_login: typeof qr_auto_login === "boolean" ? qr_auto_login : true,
       }
     });
+
 
     return NextResponse.json({ message: "Usuario creado exitosamente" }, { status: 201 });
   } catch (error) {
